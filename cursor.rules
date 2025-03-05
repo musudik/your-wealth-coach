@@ -1,0 +1,63 @@
+rules:
+  - id: vite-setup
+    pattern: "npm create vite@latest my-app --template react"
+    message: "Ensure the project is initialized with Vite using the React template."
+    severity: error
+
+  - id: tailwind-import
+    pattern: |
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+    message: "Ensure Tailwind is correctly imported in src/index.css."
+    severity: error
+
+  - id: tailwind-responsive
+    pattern: 'className=".*w-[0-9]+.*"'
+    message: "Avoid fixed widths; use responsive classes like 'max-w-md' or 'w-full' instead."
+    severity: warning
+
+  - id: tailwind-height
+    pattern: 'className=".*h-[0-9]+.*"'
+    message: "Avoid fixed heights; use 'min-h-screen' or 'h-auto' for better responsiveness."
+    severity: warning
+
+  - id: firebase-config
+    pattern: "const firebaseConfig = {.*apiKey: .*}"
+    message: "Do not hardcode Firebase API keys. Use environment variables instead."
+    severity: error
+
+  - id: firebase-exports
+    pattern: |
+      export const auth = getAuth(app);
+      export const db = getFirestore(app);
+      export const storage = getStorage(app);
+    message: "Ensure Firebase exports are properly structured in src/firebase.js."
+    severity: error
+
+  - id: firebase-try-catch
+    pattern: |
+      await signInWithEmailAndPassword(auth, email, password);
+    message: "Wrap Firebase authentication calls in a try-catch block for error handling."
+    severity: warning
+    fix: |
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        console.error("Authentication failed:", error.message);
+      }
+
+  - id: lazy-loading
+    pattern: 'React.lazy(() => import(".*"))'
+    message: "Ensure large components are lazy-loaded for better performance."
+    severity: info
+
+  - id: vite-build
+    pattern: "npm run build"
+    message: "Ensure Vite build is executed before deploying to Firebase."
+    severity: error
+
+  - id: firebase-deploy
+    pattern: "firebase deploy"
+    message: "Deploy only after running 'npm run build' to ensure latest code is deployed."
+    severity: error
