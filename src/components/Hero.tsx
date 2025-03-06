@@ -1,4 +1,3 @@
-import React from 'react';
 import MatrixBackground from './MatrixBackground';
 
 const Hero = () => {
