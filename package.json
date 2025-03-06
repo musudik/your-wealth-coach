@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview --port 5000",
-    "start": "vite preview --port 5000 --host"
+    "preview": "vite preview",
+    "start": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.10",

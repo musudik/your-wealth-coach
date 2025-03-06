@@ -8,6 +8,11 @@ export default defineConfig({
   server: {
     port: 5000
   },
+  preview: {
+    port: 5000,
+    host: true,
+    allowedHosts: ['your-wealth-coach.replit.app', 'localhost']
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
