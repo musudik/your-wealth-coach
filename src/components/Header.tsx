@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,7 +43,7 @@ const Header = () => {
           alignItems: 'center'
         }}>
           {/* Logo */}
-          <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <div style={{ 
               width: '2.5rem', 
               height: '2.5rem', 
@@ -65,7 +66,7 @@ const Header = () => {
             }}>
               Your Wealth Coach
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav style={{ 
@@ -80,7 +81,7 @@ const Header = () => {
               listStyle: 'none'
             }}>
               <li>
-                <a href="/" style={{ 
+                <Link to="/" style={{ 
                   color: '#1a202c', 
                   textDecoration: 'none',
                   fontWeight: '500',
@@ -89,10 +90,10 @@ const Header = () => {
                   transition: 'all 0.3s ease'
                 }} className="nav-link">
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/insurances" style={{ 
+                <Link to="/insurances" style={{ 
                   color: '#1a202c', 
                   textDecoration: 'none',
                   fontWeight: '500',
@@ -101,10 +102,10 @@ const Header = () => {
                   transition: 'all 0.3s ease'
                 }} className="nav-link">
                   Insurances
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/loans" style={{ 
+                <Link to="/loans" style={{ 
                   color: '#1a202c', 
                   textDecoration: 'none',
                   fontWeight: '500',
@@ -113,10 +114,10 @@ const Header = () => {
                   transition: 'all 0.3s ease'
                 }} className="nav-link">
                   Loans
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/real-estate" style={{ 
+                <Link to="/real-estate" style={{ 
                   color: '#1a202c', 
                   textDecoration: 'none',
                   fontWeight: '500',
@@ -125,10 +126,10 @@ const Header = () => {
                   transition: 'all 0.3s ease'
                 }} className="nav-link">
                   Real Estate
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/tax-returns" style={{ 
+                <Link to="/tax-returns" style={{ 
                   color: '#1a202c', 
                   textDecoration: 'none',
                   fontWeight: '500',
@@ -137,10 +138,10 @@ const Header = () => {
                   transition: 'all 0.3s ease'
                 }} className="nav-link">
                   Tax Returns
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/about-us" style={{ 
+                <Link to="/about-us" style={{ 
                   color: '#1a202c', 
                   textDecoration: 'none',
                   fontWeight: '500',
@@ -149,10 +150,10 @@ const Header = () => {
                   transition: 'all 0.3s ease'
                 }} className="nav-link">
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/login" style={{ 
+                <Link to="/login" style={{ 
                   backgroundColor: '#00d084',
                   color: '#003366',
                   padding: '0.5rem 1.25rem',
@@ -163,7 +164,7 @@ const Header = () => {
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
                 }}>
                   Login
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -226,7 +227,7 @@ const Header = () => {
                 gap: '1rem'
               }}>
                 <li>
-                  <a href="/" style={{ 
+                  <Link to="/" style={{ 
                     color: '#1a202c', 
                     textDecoration: 'none',
                     fontWeight: '500',
@@ -234,10 +235,10 @@ const Header = () => {
                     padding: '0.5rem 0'
                   }}>
                     Home
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/insurances" style={{ 
+                  <Link to="/insurances" style={{ 
                     color: '#1a202c', 
                     textDecoration: 'none',
                     fontWeight: '500',
@@ -245,10 +246,10 @@ const Header = () => {
                     padding: '0.5rem 0'
                   }}>
                     Insurances
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/loans" style={{ 
+                  <Link to="/loans" style={{ 
                     color: '#1a202c', 
                     textDecoration: 'none',
                     fontWeight: '500',
@@ -256,10 +257,10 @@ const Header = () => {
                     padding: '0.5rem 0'
                   }}>
                     Loans
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/real-estate" style={{ 
+                  <Link to="/real-estate" style={{ 
                     color: '#1a202c', 
                     textDecoration: 'none',
                     fontWeight: '500',
@@ -267,10 +268,10 @@ const Header = () => {
                     padding: '0.5rem 0'
                   }}>
                     Real Estate
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/tax-returns" style={{ 
+                  <Link to="/tax-returns" style={{ 
                     color: '#1a202c', 
                     textDecoration: 'none',
                     fontWeight: '500',
@@ -278,10 +279,10 @@ const Header = () => {
                     padding: '0.5rem 0'
                   }}>
                     Tax Returns
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/about-us" style={{ 
+                  <Link to="/about-us" style={{ 
                     color: '#1a202c', 
                     textDecoration: 'none',
                     fontWeight: '500',
@@ -289,21 +290,32 @@ const Header = () => {
                     padding: '0.5rem 0'
                   }}>
                     About Us
-                  </a>
+                  </Link>
                 </li>
-                <li style={{ paddingTop: '0.5rem' }}>
-                  <a href="/login" style={{ 
-                    backgroundColor: '#00d084',
-                    color: '#003366',
-                    padding: '0.5rem 1.25rem',
-                    borderRadius: '0.375rem',
-                    fontWeight: '600',
+                <li>
+                  <Link to="/login" style={{ 
+                    color: '#003366', 
                     textDecoration: 'none',
-                    display: 'inline-block',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    fontWeight: '600',
+                    display: 'block',
+                    padding: '0.5rem 0'
                   }}>
                     Login
-                  </a>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/signup" style={{ 
+                    backgroundColor: '#00d084',
+                    color: '#003366',
+                    textDecoration: 'none',
+                    fontWeight: '600',
+                    display: 'block',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.375rem',
+                    textAlign: 'center'
+                  }}>
+                    Sign Up
+                  </Link>
                 </li>
               </ul>
             </nav>
