@@ -16,74 +16,84 @@ export function RecentActivity() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     fetchActivities();
-  }, []);
-
-  const fetchActivities = async () => {
-    try {
-      setLoading(true);
-      
-      // Get the current partner ID (you might want to get this from auth context)
-      const partnerId = "current-partner-id"; // Replace with actual partner ID
-      
-      const activitiesCollection = collection(firestore, "activities");
-      const activitiesQuery = query(
-        activitiesCollection,
-        orderBy("timestamp", "desc"),
-        limit(10)
-      );
-      
-      const activitiesSnapshot = await getDocs(activitiesQuery);
-      const activitiesList = activitiesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data().timestamp?.toDate() || new Date()
-      })) as Activity[];
-      
-      setActivities(activitiesList);
-    } catch (error) {
-      console.error("Error fetching activities:", error);
-      // Use mock data if Firestore fetch fails
-      setActivities([
-        {
-          id: "1",
-          type: "form_submitted",
-          clientName: "John Doe",
-          timestamp: new Date(2023, 9, 15, 14, 30),
-          details: "Tax Return Form"
-        },
-        {
-          id: "2",
-          type: "appointment_scheduled",
-          clientName: "Jane Smith",
-          timestamp: new Date(2023, 9, 14, 10, 15),
-          details: "Financial Review Meeting"
-        },
-        {
-          id: "3",
-          type: "client_added",
-          clientName: "Michael Johnson",
-          timestamp: new Date(2023, 9, 13, 9, 45)
-        },
-        {
-          id: "4",
-          type: "form_reviewed",
-          clientName: "Sarah Williams",
-          timestamp: new Date(2023, 9, 12, 16, 20),
-          details: "Insurance Application"
-        },
-        {
-          id: "5",
-          type: "form_submitted",
-          clientName: "Robert Brown",
-          timestamp: new Date(2023, 9, 11, 11, 5),
-          details: "Real Estate Assessment"
+    
+    return () => {
+      isMounted = false;
+    };
+    
+    async function fetchActivities() {
+      try {
+        if (!isMounted) return;
+        setLoading(true);
+        
+        // Get the current partner ID (you might want to get this from auth context)
+        const partnerId = "current-partner-id"; // Replace with actual partner ID
+        
+        const activitiesCollection = collection(firestore, "activities");
+        const activitiesQuery = query(
+          activitiesCollection,
+          orderBy("timestamp", "desc"),
+          limit(10)
+        );
+        
+        const activitiesSnapshot = await getDocs(activitiesQuery);
+        const activitiesList = activitiesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.toDate() || new Date()
+        })) as Activity[];
+        
+        if (isMounted) {
+          setActivities(activitiesList);
         }
-      ]);
-    } finally {
-      setLoading(false);
+      } catch (error) {
+        console.error("Error fetching activities:", error);
+        // Use mock data if Firestore fetch fails
+        setActivities([
+          {
+            id: "1",
+            type: "form_submitted",
+            clientName: "John Doe",
+            timestamp: new Date(2023, 9, 15, 14, 30),
+            details: "Tax Return Form"
+          },
+          {
+            id: "2",
+            type: "appointment_scheduled",
+            clientName: "Jane Smith",
+            timestamp: new Date(2023, 9, 14, 10, 15),
+            details: "Financial Review Meeting"
+          },
+          {
+            id: "3",
+            type: "client_added",
+            clientName: "Michael Johnson",
+            timestamp: new Date(2023, 9, 13, 9, 45)
+          },
+          {
+            id: "4",
+            type: "form_reviewed",
+            clientName: "Sarah Williams",
+            timestamp: new Date(2023, 9, 12, 16, 20),
+            details: "Insurance Application"
+          },
+          {
+            id: "5",
+            type: "form_submitted",
+            clientName: "Robert Brown",
+            timestamp: new Date(2023, 9, 11, 11, 5),
+            details: "Real Estate Assessment"
+          }
+        ]);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
-  };
+  }, []);
 
   const formatDate = (date: Date) => {
     const now = new Date();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { logoutUser, getUserDetails, isUserPartner } from '../db-services/authService';
 import { auth } from '../db-services/firebase';
 import { THEME } from '../config';
@@ -7,14 +7,14 @@ import { THEME } from '../config';
 const Dashboard = () => {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const history = useHistory();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const user = auth.currentUser;
         if (!user) {
-          navigate('/login');
+          history.push('/login');
           return;
         }
 
@@ -24,7 +24,7 @@ const Dashboard = () => {
         // Redirect to partner dashboard if user is a partner
         const isPartner = await isUserPartner(user.uid);
         if (isPartner) {
-          navigate('/partner-dashboard');
+          history.push('/partner-dashboard');
           return;
         }
       } catch (error) {
@@ -35,12 +35,12 @@ const Dashboard = () => {
     };
 
     fetchUserData();
-  }, [navigate]);
+  }, [history]);
 
   const handleLogout = async () => {
     try {
       await logoutUser();
-      navigate('/login');
+      history.push('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }

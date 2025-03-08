@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { StatsOverview } from "./StatsOverview";
 import { ClientDirectory } from "./ClientDirectory";
@@ -20,10 +20,10 @@ export const formTypes = [
 ];
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const history = useHistory();
   
   const handleNewClient = () => {
-    navigate('/clients/new/edit');
+    history.push('/clients/new/edit');
   };
   
   return (

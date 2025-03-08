@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FileText, FileCheck, FilePlus } from "lucide-react";
+import { useHistory } from "react-router-dom";
 
 interface FormCategory {
   id: string;
@@ -10,6 +11,8 @@ interface FormCategory {
 }
 
 export function FormCategories() {
+  const history = useHistory();
+
   const [categories] = useState<FormCategory[]>([
     {
       id: "tax-returns",

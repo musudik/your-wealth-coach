@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { loginUser, getUserDetails, isUserPartner } from "../../db-services/authService";
 import "./auth.css";
 import { THEME } from "../../config";
@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const history = useHistory();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +25,9 @@ const Login = () => {
       
       // Redirect based on user role
       if (isPartner) {
-        navigate("/partner-dashboard");
+        history.push("/partner-dashboard");
       } else {
-        navigate("/dashboard");
+        history.push("/dashboard");
       }
       
     } catch (error: any) {

@@ -22,68 +22,82 @@ export function UpcomingAppointments() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     fetchAppointments();
-  }, []);
-
-  const fetchAppointments = async () => {
-    try {
-      setLoading(true);
-      
-      // Get the current partner ID (you might want to get this from auth context)
-      const partnerId = "current-partner-id"; // Replace with actual partner ID
-      
-      const now = new Date();
-      const appointmentsCollection = collection(firestore, "appointments");
-      const appointmentsQuery = query(
-        appointmentsCollection,
-        where("partnerId", "==", partnerId),
-        where("scheduledAt", ">=", now),
-        where("status", "!=", "cancelled"),
-        orderBy("scheduledAt"),
-        limit(5)
-      );
-      
-      const appointmentsSnapshot = await getDocs(appointmentsQuery);
-      const appointmentsList = appointmentsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        scheduledAt: doc.data().scheduledAt?.toDate() || new Date()
-      })) as Appointment[];
-      
-      setAppointments(appointmentsList);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-      // Use mock data if Firestore fetch fails
-      setAppointments([
-        {
-          id: "1",
-          clientName: "John Doe",
-          scheduledAt: new Date(new Date().setHours(new Date().getHours() + 3)),
-          duration: 30,
-          type: "video",
-          status: "confirmed"
-        },
-        {
-          id: "2",
-          clientName: "Jane Smith",
-          scheduledAt: new Date(new Date().setHours(new Date().getHours() + 24)),
-          duration: 45,
-          type: "phone",
-          status: "confirmed"
-        },
-        {
-          id: "3",
-          clientName: "Michael Johnson",
-          scheduledAt: new Date(new Date().setHours(new Date().getHours() + 48)),
-          duration: 60,
-          type: "video",
-          status: "pending"
+    
+    return () => {
+      isMounted = false;
+    };
+    
+    async function fetchAppointments() {
+      try {
+        if (!isMounted) return;
+        setLoading(true);
+        
+        // Get the current partner ID (you might want to get this from auth context)
+        const partnerId = "current-partner-id"; // Replace with actual partner ID
+        
+        const appointmentsCollection = collection(firestore, "appointments");
+        const appointmentsQuery = query(
+          appointmentsCollection,
+          where("partnerId", "==", partnerId)
+        );
+        
+        const appointmentsSnapshot = await getDocs(appointmentsQuery);
+        
+        const now = new Date();
+        const appointmentsList = appointmentsSnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            scheduledAt: doc.data().scheduledAt?.toDate() || new Date()
+          }))
+          .filter(appointment => 
+            appointment.scheduledAt >= now && 
+            appointment.status !== "cancelled"
+          )
+          .sort((a, b) => a.scheduledAt - b.scheduledAt)
+          .slice(0, 5);
+        
+        if (isMounted) {
+          setAppointments(appointmentsList);
         }
-      ]);
-    } finally {
-      setLoading(false);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+        // Use mock data if Firestore fetch fails
+        setAppointments([
+          {
+            id: "1",
+            clientName: "John Doe",
+            scheduledAt: new Date(new Date().setHours(new Date().getHours() + 3)),
+            duration: 30,
+            type: "video",
+            status: "confirmed"
+          },
+          {
+            id: "2",
+            clientName: "Jane Smith",
+            scheduledAt: new Date(new Date().setHours(new Date().getHours() + 24)),
+            duration: 45,
+            type: "phone",
+            status: "confirmed"
+          },
+          {
+            id: "3",
+            clientName: "Michael Johnson",
+            scheduledAt: new Date(new Date().setHours(new Date().getHours() + 48)),
+            duration: 60,
+            type: "video",
+            status: "pending"
+          }
+        ]);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
-  };
+  }, []);
 
   // Function to get initials from name
   const getInitials = (name: string) => {

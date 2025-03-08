@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 interface DashboardLayoutProps {
@@ -9,12 +9,12 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { currentUser, logout } = useAuth();
-  const navigate = useNavigate();
+  const history = useHistory();
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      history.push('/login');
     } catch (error) {
       console.error('Failed to log out', error);
     }

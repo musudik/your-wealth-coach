@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { registerUser } from "../../db-services/authService";
 import "./auth.css";
 import { THEME } from "../../config";
@@ -8,7 +8,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const navigate = useNavigate();
+  const history = useHistory();
 
   // Form fields
   const [email, setEmail] = useState("");
@@ -51,7 +51,7 @@ const Signup = () => {
       
       // Redirect to login after a delay
       setTimeout(() => {
-        navigate("/login");
+        history.push("/login");
       }, 2000);
       
     } catch (error: any) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
@@ -93,87 +93,96 @@ export function ClientDirectory() {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [currentFormUrl, setCurrentFormUrl] = useState('');
   const [formUrlCopied, setFormUrlCopied] = useState(false);
-  const navigate = useNavigate();
+  const history = useHistory();
   const { toast } = useToast();
   
   useEffect(() => {
+    let isMounted = true;
     fetchClients();
-  }, []);
-  
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      
-      // Get the current partner ID (you might want to get this from auth context)
-      const partnerId = "current-partner-id"; // Replace with actual partner ID
-      
-      const clientsCollection = collection(firestore, "clients");
-      const clientsQuery = query(
-        clientsCollection,
-        where("partnerId", "==", partnerId),
-        orderBy("lastActivity", "desc")
-      );
-      
-      const clientsSnapshot = await getDocs(clientsQuery);
-      const clientsList = clientsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        lastActivity: doc.data().lastActivity?.toDate() || new Date()
-      })) as Client[];
-      
-      setClients(clientsList);
-      
-      // Count pending forms for each client
-      await countAllPendingForms(clientsList);
-    } catch (error) {
-      console.error("Error fetching clients:", error);
-      // Use mock data if Firestore fetch fails
-      setClients([
-        {
-          id: "1",
-          name: "John Doe",
-          email: "john.doe@example.com",
-          phone: "+1 (555) 123-4567",
-          status: "active",
-          lastActivity: new Date(2023, 9, 15)
-        },
-        {
-          id: "2",
-          name: "Jane Smith",
-          email: "jane.smith@example.com",
-          phone: "+1 (555) 987-6543",
-          status: "active",
-          lastActivity: new Date(2023, 9, 12)
-        },
-        {
-          id: "3",
-          name: "Michael Johnson",
-          email: "michael.j@example.com",
-          phone: "+1 (555) 456-7890",
-          status: "inactive",
-          lastActivity: new Date(2023, 8, 28)
-        },
-        {
-          id: "4",
-          name: "Sarah Williams",
-          email: "sarah.w@example.com",
-          phone: "+1 (555) 789-0123",
-          status: "active",
-          lastActivity: new Date(2023, 9, 10)
-        },
-        {
-          id: "5",
-          name: "Robert Brown",
-          email: "robert.b@example.com",
-          phone: "+1 (555) 234-5678",
-          status: "pending",
-          lastActivity: new Date(2023, 9, 5)
+    
+    return () => {
+      isMounted = false;
+    };
+    
+    async function fetchClients() {
+      try {
+        if (!isMounted) return;
+        setLoading(true);
+        
+        const partnerId = "current-partner-id"; // Replace with actual partner ID
+        
+        const clientsCollection = collection(firestore, "clients");
+        const clientsQuery = query(
+          clientsCollection,
+          where("partnerId", "==", partnerId)
+        );
+        
+        const clientsSnapshot = await getDocs(clientsQuery);
+        const clientsList = clientsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          lastActivity: doc.data().lastActivity?.toDate() || new Date()
+        }));
+        
+        clientsList.sort((a, b) => b.lastActivity - a.lastActivity);
+        
+        if (isMounted) {
+          setClients(clientsList);
         }
-      ]);
-    } finally {
-      setLoading(false);
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+        // Use mock data if Firestore fetch fails
+        if (isMounted) {
+          setClients([
+            {
+              id: "1",
+              name: "John Doe",
+              email: "john.doe@example.com",
+              phone: "+1 (555) 123-4567",
+              status: "active",
+              lastActivity: new Date(2023, 9, 15)
+            },
+            {
+              id: "2",
+              name: "Jane Smith",
+              email: "jane.smith@example.com",
+              phone: "+1 (555) 987-6543",
+              status: "active",
+              lastActivity: new Date(2023, 9, 12)
+            },
+            {
+              id: "3",
+              name: "Michael Johnson",
+              email: "michael.j@example.com",
+              phone: "+1 (555) 456-7890",
+              status: "inactive",
+              lastActivity: new Date(2023, 8, 28)
+            },
+            {
+              id: "4",
+              name: "Sarah Williams",
+              email: "sarah.w@example.com",
+              phone: "+1 (555) 789-0123",
+              status: "active",
+              lastActivity: new Date(2023, 9, 10)
+            },
+            {
+              id: "5",
+              name: "Robert Brown",
+              email: "robert.b@example.com",
+              phone: "+1 (555) 234-5678",
+              status: "pending",
+              lastActivity: new Date(2023, 9, 5)
+            }
+          ]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
-  };
+  }, []);
   
   const countAllPendingForms = async (clientsList) => {
     try {
@@ -340,7 +349,7 @@ export function ClientDirectory() {
   };
   
   const handleEditClient = (clientId) => {
-    navigate(`/clients/${clientId}/edit`);
+    history.push(`/clients/${clientId}/edit`);
   };
   
   const handleDeleteClient = async (clientId) => {
@@ -427,7 +436,7 @@ export function ClientDirectory() {
                 />
               </div>
               <Button 
-                onClick={() => navigate('/clients/new/edit')}
+                onClick={() => history.push('/clients/new/edit')}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <UserPlus className="mr-2 h-4 w-4" />
@@ -458,7 +467,7 @@ export function ClientDirectory() {
             <div className="text-center py-12">
               <p className="text-gray-500">No clients found</p>
               <Button 
-                onClick={() => navigate('/clients/new/edit')}
+                onClick={() => history.push('/clients/new/edit')}
                 className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Add Your First Client
@@ -470,10 +479,8 @@ export function ClientDirectory() {
                 const statusStyle = getStatusColor(client.status);
                 
                 return (
-                  <motion.div
+                  <div
                     key={client.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
                     className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden"
                   >
                     <div className="p-4 sm:p-6">
@@ -706,7 +713,7 @@ export function ClientDirectory() {
                         )}
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>

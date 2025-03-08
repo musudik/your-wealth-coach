@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import getFinancialAdvice from '../services/api';
 import { FEATURES, THEME } from '../config';
+import { useHistory } from 'react-router-dom';
 
 interface Message {
   id: number;
@@ -21,6 +22,8 @@ const suggestedQuestions = [
 ];
 
 const ChatBot = () => {
+  const history = useHistory();
+
   // Don't render the chatbot if it's disabled in config
   if (!FEATURES.CHATBOT_ENABLED) return null;
 

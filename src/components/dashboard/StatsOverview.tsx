@@ -13,64 +13,85 @@ export function StatsOverview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true; // Add this flag to prevent state updates after unmount
     fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
-      
-      // Get the current partner ID (you might want to get this from auth context)
-      const partnerId = "current-partner-id"; // Replace with actual partner ID
-      
-      // Count total clients
-      const clientsCollection = collection(firestore, "clients");
-      const clientsQuery = query(
-        clientsCollection,
-        where("partnerId", "==", partnerId)
-      );
-      const clientsSnapshot = await getDocs(clientsQuery);
-      const totalClients = clientsSnapshot.size;
-      
-      // Count pending forms
-      const formsCollection = collection(firestore, "forms");
-      const pendingFormsQuery = query(
-        formsCollection,
-        where("partnerId", "==", partnerId),
-        where("status", "==", "pending")
-      );
-      const pendingFormsSnapshot = await getDocs(pendingFormsQuery);
-      const pendingForms = pendingFormsSnapshot.size;
-      
-      // Count upcoming appointments
-      const now = new Date();
-      const appointmentsCollection = collection(firestore, "appointments");
-      const appointmentsQuery = query(
-        appointmentsCollection,
-        where("partnerId", "==", partnerId),
-        where("scheduledAt", ">=", now),
-        orderBy("scheduledAt"),
-        limit(10)
-      );
-      const appointmentsSnapshot = await getDocs(appointmentsQuery);
-      const upcomingAppointments = appointmentsSnapshot.size;
-      
-      // Calculate monthly growth (this is a placeholder - implement your own logic)
-      // For example, you might compare the number of clients this month vs last month
-      const monthlyGrowth = 12; // Placeholder value
-      
-      setStats({
-        totalClients,
-        pendingForms,
-        upcomingAppointments,
-        monthlyGrowth
-      });
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    } finally {
-      setLoading(false);
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+    };
+    
+    async function fetchStats() {
+      try {
+        if (!isMounted) return;
+        setLoading(true);
+        
+        // Get the current partner ID (you might want to get this from auth context)
+        const partnerId = "current-partner-id"; // Replace with actual partner ID
+        
+        // Count total clients
+        const clientsCollection = collection(firestore, "clients");
+        const clientsQuery = query(
+          clientsCollection,
+          where("partnerId", "==", partnerId)
+        );
+        const clientsSnapshot = await getDocs(clientsQuery);
+        const totalClients = clientsSnapshot.size;
+        
+        // Count pending forms
+        const formsCollection = collection(firestore, "forms");
+        const pendingFormsQuery = query(
+          formsCollection,
+          where("partnerId", "==", partnerId),
+          where("status", "==", "pending")
+        );
+        const pendingFormsSnapshot = await getDocs(pendingFormsQuery);
+        const pendingForms = pendingFormsSnapshot.size;
+        
+        // Count upcoming appointments - MODIFIED TO AVOID INDEX ERROR
+        let upcomingAppointments = 0;
+        try {
+          const now = new Date();
+          const appointmentsCollection = collection(firestore, "appointments");
+          
+          // First try with just the partnerId filter to avoid index issues
+          const appointmentsQuery = query(
+            appointmentsCollection,
+            where("partnerId", "==", partnerId)
+          );
+          
+          const appointmentsSnapshot = await getDocs(appointmentsQuery);
+          
+          // Filter in memory instead of in the query
+          upcomingAppointments = appointmentsSnapshot.docs.filter(doc => {
+            const data = doc.data();
+            return data.scheduledAt && data.scheduledAt.toDate() >= now;
+          }).length;
+        } catch (error) {
+          console.error("Error fetching appointments:", error);
+          // Continue with default value
+        }
+        
+        // Calculate monthly growth (this is a placeholder - implement your own logic)
+        const monthlyGrowth = 12; // Placeholder value
+        
+        if (isMounted) {
+          setStats({
+            totalClients,
+            pendingForms,
+            upcomingAppointments,
+            monthlyGrowth
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
-  };
+  }, []);
 
   const cardStyle = {
     backgroundColor: 'white',
