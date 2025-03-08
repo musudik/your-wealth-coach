@@ -210,4 +210,4 @@ export const formTypes = [
   'tax-return',
   'real-estate',
   'electricity'
-]; 
+];

@@ -189,241 +189,380 @@ export default function ClientDirectory() {
   };
   
   return (
-    <div style={{
-      padding: '16px',
-      maxWidth: '60%',
-      margin: '0 auto'
+    <div style={{ 
+      width: '70%', 
+      maxWidth: '100%',
+      overflowX: 'hidden'
     }}>
-      {/* Header Section */}
-      <div style={{
-        marginBottom: '24px'
+      <h2 style={{ 
+        fontSize: '1.25rem', 
+        fontWeight: '600', 
+        color: '#1e293b',
+        marginBottom: '1.5rem'
       }}>
-        <h2 style={{
-          fontSize: '24px',
-          fontWeight: '600',
-          color: '#1e293b',
-          marginBottom: '16px'
-        }}>
-          Client Directory
-        </h2>
-
-        {/* Search and Add Client Controls */}
-        <div style={{
-          display: 'flex',
-          flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
-          gap: '12px',
-          width: '100%'
-        }}>
-          {/* Search Box */}
-          <div style={{
-            position: 'relative',
-            flex: window.innerWidth <= 768 ? '1' : '1',
-            minWidth: window.innerWidth <= 768 ? '100%' : '200px'
-          }}>
-            <Search style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: '#6b7280',
-              width: '20px',
-              height: '20px'
-            }} />
-            <input
-              type="text"
-              placeholder="Search clients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '90%',
-                height: '44px',
-                paddingLeft: '40px',
-                paddingRight: '12px',
-                borderRadius: '8px',
-                border: '1px solid #e5e7eb',
-                fontSize: '16px',
-                backgroundColor: '#f9fafb'
-              }}
-            />
-          </div>
-
-          {/* Add Client Button */}
-          <button
-            onClick={handleAddClient}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '44px',
-              padding: '0 16px',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              minWidth: window.innerWidth <= 768 ? '100%' : 'auto'
-            }}
-          >
-            <UserPlus size={20} style={{ marginRight: '8px' }} />
-            Add Client
-          </button>
-        </div>
-      </div>
-
-      {/* Client List Section */}
+        Client Directory
+      </h2>
+      
       <div style={{
         width: '100%',
-        background: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        borderRadius: '0.5rem',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(8px)',
         overflow: 'hidden'
       }}>
-        {loading ? (
-          <div style={{
-            padding: '40px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              display: 'inline-block',
-              width: '40px',
-              height: '40px',
-              border: '4px solid #e5e7eb',
-              borderTopColor: '#3b82f6',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
-          </div>
-        ) : filteredClients.length === 0 ? (
-          <div style={{
-            padding: '40px 20px',
-            textAlign: 'center'
-          }}>
-            <p style={{
-              color: '#6b7280',
-              fontSize: '16px'
-            }}>
-              {searchQuery ? 'No clients found matching your search.' : 'No clients yet. Add your first client to get started.'}
-            </p>
-          </div>
-        ) : (
+        {/* Search and Add Client Section */}
+        <div style={{
+          padding: '1rem',
+          borderBottom: '1px solid #f3f4f6'
+        }}>
           <div style={{
             display: 'flex',
-            flexDirection: 'column',
-            gap: '1px',
-            backgroundColor: '#f3f4f6'
+            flexDirection: window.innerWidth < 640 ? 'column' : 'row',
+            gap: '1rem',
+            width: '100%'
           }}>
-            {filteredClients.map((client) => (
-              <div
-                key={client.clientId}
-                style={{
-                  padding: '16px',
-                  backgroundColor: 'white'
-                }}
-              >
-                {/* Client Info Row */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '16px'
-                }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    backgroundColor: '#dbeafe',
-                    color: '#2563eb',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: '600',
-                    fontSize: '16px',
-                    flexShrink: 0,
-                    marginRight: '12px'
-                  }}>
-                    {getClientInitials(client)}
-                  </div>
+            {/* Search Input */}
+            <div style={{ 
+              position: 'relative',
+              width: window.innerWidth < 640 ? '100%' : '60%'
+            }}>
+              <div style={{ 
+                position: 'absolute', 
+                left: '12px', 
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#6b7280'
+              }}>
+                <Search size={18} />
+            </div>
+              <input 
+                  type="text"
+                style={{ 
+                  width: '70%',
+                  height: '40px',
+                  paddingLeft: '40px',
+                  paddingRight: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb',
+                  fontSize: '0.95rem',
+                  backgroundColor: '#f9fafb',
+                  outline: 'none'
+                }} 
+                  placeholder="Search clients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
 
-                  {/* Client Details */}
-                  <div style={{
-                    flex: '1',
-                    minWidth: 0 // Ensures text truncation works
+            {/* Add Client Button */}
+            <button 
+              onClick={handleAddClient}
+              style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '40px',
+                padding: '0 1rem',
+                borderRadius: '8px',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                fontWeight: '500',
+                border: 'none',
+                cursor: 'pointer',
+                width: window.innerWidth < 640 ? '100%' : 'auto'
+              }}
+            >
+              <UserPlus size={18} style={{ marginRight: '8px' }} />
+                Add Client
+            </button>
+            </div>
+          </div>
+
+        {/* Content Area */}
+        <div style={{ padding: '1rem' }}>
+          {loading ? (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: '3rem 0'
+            }}>
+              <div style={{
+                height: '2.5rem',
+                width: '2.5rem',
+                borderRadius: '50%',
+                border: `4px solid ${THEME.PRIMARY}`,
+                borderTopColor: 'transparent',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+            </div>
+          ) : filteredClients.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '3rem 1rem'
+            }}>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  background: '#f9fafb',
+                  padding: '1rem',
+                  borderRadius: '50%',
+                  marginBottom: '1rem'
+                }}>
+                  <UserPlus size={40} style={{ color: '#9ca3af' }} />
+                </div>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  color: '#111827',
+                  marginBottom: '0.5rem'
+                }}>No clients found</h3>
+                <p style={{
+                  color: '#6b7280',
+                  marginBottom: '1.5rem',
+                  maxWidth: '28rem'
+                }}>
+                  {searchQuery ? 'Try a different search term or add a new client.' : 'Add your first client to start managing their information and forms.'}
+                </p>
+                <button 
+                  onClick={handleAddClient}
+                  style={{
+                    backgroundColor: '#2563eb',
+                    color: 'white',
+                    fontWeight: '500',
+                    padding: '0.5rem 1.5rem',
+                    borderRadius: '0.375rem',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Add Client
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '1rem',
+              width: '100%'
+            }}>
+              {filteredClients.map((client) => (
+                <div
+                  key={client.clientId}
+                  style={{
+                    background: 'white',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    border: '1px solid #f3f4f6',
+                    width: '100%'
+                  }}
+                >
+                  <div style={{ 
+                    padding: '1rem',
+                    width: '100%'
                   }}>
-                    <div style={{
-                      fontSize: '16px',
-                      fontWeight: '500',
-                      color: '#111827',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}>
-                      {getClientName(client)}
-                    </div>
+                    {/* Client Info */}
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      color: '#6b7280',
-                      fontSize: '14px',
-                      marginTop: '4px'
+                      marginBottom: '1rem',
+                      width: '100%'
                     }}>
-                      <Mail size={14} style={{ marginRight: '6px' }} />
-                      <span style={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                      {/* Avatar */}
+                      <div style={{
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        borderRadius: '50%',
+                        backgroundColor: '#dbeafe',
+                        color: '#2563eb',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 'bold',
+                        marginRight: '0.75rem',
+                        flexShrink: 0
                       }}>
-                        {client.contactInformation?.email || 'No email'}
-                      </span>
+                        {getClientInitials(client)}
+                      </div>
+                      
+                      {/* Client Details */}
+                      <div style={{
+                        overflow: 'hidden',
+                        width: 'calc(100% - 3.25rem)'
+                      }}>
+                        <h3 style={{
+                          fontWeight: '500',
+                          color: '#111827',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {getClientName(client)}
+                        </h3>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          fontSize: '0.875rem',
+                          color: '#6b7280',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          <Mail size={14} style={{ marginRight: '0.25rem', flexShrink: 0 }} />
+                          <span style={{ 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis' 
+                          }}>
+                            {client.contactInformation?.email || 'No email'}
+                              </span>
+                          </div>
+                        </div>
+                      </div>
+                    
+                    {/* Action Buttons */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: window.innerWidth < 480 ? '1fr 1fr' : 'repeat(4, 1fr)',
+                      gap: '0.5rem',
+                      width: '100%'
+                    }}>
+                      <button 
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          height: '2.25rem',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          color: '#d97706',
+                          border: '1px solid #fcd34d',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          padding: '0 0.5rem',
+                          width: '70%'
+                        }}
+                        onClick={() => handleEditClient(client.clientId)}
+                      >
+                        <Edit size={window.innerWidth < 640 ? 16 : 14} style={{ marginRight: window.innerWidth < 640 ? 0 : '0.375rem' }} />
+                        {window.innerWidth >= 640 && <span>Edit</span>}
+                      </button>
+                      
+                      <button 
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          height: '2.25rem',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          color: '#2563eb',
+                          border: '1px solid #bfdbfe',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          padding: '0 0.5rem',
+                          width: '70%'
+                        }}
+                        onClick={() => handleReviewForms(client.clientId)}
+                      >
+                        <QrCode size={window.innerWidth < 640 ? 16 : 14} style={{ marginRight: window.innerWidth < 640 ? 0 : '0.375rem' }} />
+                        {window.innerWidth >= 640 && (
+                          <>
+                            <span>Forms</span>
+                            {pendingFormsCount[client.clientId] > 0 && (
+                              <span style={{
+                                marginLeft: '0.375rem',
+                                background: '#dbeafe',
+                                color: '#1d4ed8',
+                                fontSize: '0.75rem',
+                                fontWeight: '500',
+                                padding: '0 0.5rem',
+                                borderRadius: '9999px'
+                              }}>
+                                {pendingFormsCount[client.clientId]}
+                              </span>
+                            )}
+                                          </>
+                                        )}
+                        {window.innerWidth < 640 && pendingFormsCount[client.clientId] > 0 && (
+                          <span style={{
+                            position: 'absolute',
+                            top: '-5px',
+                            right: '-5px',
+                            background: '#ef4444',
+                            color: 'white',
+                            fontSize: '0.75rem',
+                            fontWeight: '500',
+                            width: '18px',
+                            height: '18px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            {pendingFormsCount[client.clientId]}
+                          </span>
+                        )}
+                      </button>
+                      
+                      <button 
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          height: '2.25rem',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          color: '#16a34a',
+                          border: '1px solid #bbf7d0',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          padding: '0 0.5rem',
+                          width: '70%'
+                        }}
+                        onClick={() => handleReviewForms(client.clientId)}
+                      >
+                        <FileText size={window.innerWidth < 640 ? 16 : 14} style={{ marginRight: window.innerWidth < 640 ? 0 : '0.375rem' }} />
+                        {window.innerWidth >= 640 && <span>Review</span>}
+                      </button>
+                      
+                      <button 
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          height: '2.25rem',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          color: '#dc2626',
+                          border: '1px solid #fecaca',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          padding: '0 0.5rem',
+                          width: '70%'
+                        }}
+                        onClick={() => handleDeleteClient(client.clientId)}
+                      >
+                        <Trash2 size={window.innerWidth < 640 ? 16 : 14} style={{ marginRight: window.innerWidth < 640 ? 0 : '0.375rem' }} />
+                        {window.innerWidth >= 640 && <span>Delete</span>}
+                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Actions Row */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: window.innerWidth <= 480 ? '1fr 1fr' : 'repeat(4, 1fr)',
-                  gap: '8px'
-                }}>
-                  {/* Action Buttons */}
-                  <ActionButton
-                    icon={<Edit size={16} />}
-                    label="Edit"
-                    onClick={() => handleEditClient(client.clientId)}
-                    color="#d97706"
-                    borderColor="#fcd34d"
-                  />
-                  <ActionButton
-                    icon={<QrCode size={16} />}
-                    label="Forms"
-                    onClick={() => handleReviewForms(client.clientId)}
-                    color="#2563eb"
-                    borderColor="#bfdbfe"
-                    badge={pendingFormsCount[client.clientId]}
-                  />
-                  <ActionButton
-                    icon={<FileText size={16} />}
-                    label="Review"
-                    onClick={() => handleReviewForms(client.clientId)}
-                    color="#16a34a"
-                    borderColor="#bbf7d0"
-                  />
-                  <ActionButton
-                    icon={<Trash2 size={16} />}
-                    label="Delete"
-                    onClick={() => handleDeleteClient(client.clientId)}
-                    color="#dc2626"
-                    borderColor="#fecaca"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
+              ))}
+                        </div>
+                      )}
+                    </div>
+            </div>
       <style jsx>{`
         @keyframes spin {
           to {
@@ -432,53 +571,5 @@ export default function ClientDirectory() {
         }
       `}</style>
     </div>
-  );
-}
-
-// ActionButton Component
-function ActionButton({ icon, label, onClick, color, borderColor, badge }) {
-  const showLabel = window.innerWidth > 480;
-  
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '36px',
-        padding: '0 12px',
-        borderRadius: '6px',
-        border: `1px solid ${borderColor}`,
-        backgroundColor: 'transparent',
-        color: color,
-        fontSize: '14px',
-        fontWeight: '500',
-        cursor: 'pointer',
-        gap: '6px',
-        width: '50%'
-      }}
-    >
-      {icon}
-      {showLabel && <span>{label}</span>}
-      {badge && badge > 0 && (
-        <span style={{
-          position: showLabel ? 'static' : 'absolute',
-          top: showLabel ? 'auto' : '-6px',
-          right: showLabel ? 'auto' : '-6px',
-          backgroundColor: '#dbeafe',
-          color: '#1d4ed8',
-          fontSize: '12px',
-          fontWeight: '500',
-          padding: '2px 6px',
-          borderRadius: '9999px',
-          minWidth: '20px',
-          textAlign: 'center'
-        }}>
-          {badge}
-        </span>
-      )}
-    </button>
   );
 } 
