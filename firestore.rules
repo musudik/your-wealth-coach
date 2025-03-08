@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    function isPartner() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "partner";
+    }
+
+    // Users collection rules - this is the main collection used by your auth service
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated(); // Allow user creation during signup
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Admins collection rules
+    match /admins/{adminId} {
+      allow read: if isOwner(adminId) || isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // Partners collection rules (if you're still using this separate collection)
+    match /partners/{partnerId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isOwner(partnerId) || isAdmin() || 
+                   (isOwner(partnerId) && 
+                    !request.resource.data.diff(resource.data).affectedKeys().hasAny(['approvalStatus', 'activationStatus']));
+      allow delete: if isAdmin();
+    }
+
+    // Clients collection rules
+    match /clients/{clientId} {
+      allow read: if isAuthenticated();
+      allow create: if isPartner() || isAdmin();
+      allow update: if isOwner(clientId) || isPartner() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Forms collection rules
+    match /forms/{formId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid || 
+        isPartner() || 
+        isAdmin()
+      );
+      allow delete: if isPartner() || isAdmin();
+    }
+    
+    // Appointments collection
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid || 
+        isPartner() || 
+        isAdmin()
+      );
+      allow delete: if isPartner() || isAdmin();
+    }
+    
+    // Activities collection
+    match /activities/{activityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isPartner() || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Metrics collection
+    match /metrics/{metricId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+} 

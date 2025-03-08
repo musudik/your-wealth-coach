@@ -1,185 +1,213 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { StatsOverview } from "./StatsOverview";
-import { ClientDirectory } from "./ClientDirectory";
-import { RecentActivity } from "./RecentActivity";
-import { FormCategories } from "./FormCategories";
-import { PerformanceMetrics } from "./PerformanceMetrics";
-import { UpcomingAppointments } from "./UpcomingAppointments";
-import { Plus, Bell } from "lucide-react";
-import { Button } from "../ui/button";
 import DashboardLayout from "./DashboardLayout";
+import StatsCards from "./StatsCards";
+import ClientDirectory from "./ClientDirectory";
+import UpcomingAppointments from "./UpcomingAppointments";
+import { Bell, Plus } from "lucide-react";
+import { FormTypes } from "../../types/types";
 
-// Form types
-export const formTypes = [
-  'self-disclosure',
-  'tax-return',
-  'real-estate',
-  'electricity'
-];
+// Tab components
+import RecentActivity from "./RecentActivity";
+import Forms from "./Forms";
+import Performance from "./Performance";
 
 export default function Dashboard() {
   const history = useHistory();
+  const [activeTab, setActiveTab] = useState("clients");
   
-  const handleNewClient = () => {
-    history.push('/clients/new/edit');
+  const handleAddClient = () => {
+    history.push('/partner-dashboard/clients/new');
   };
   
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+      <div style={{
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+        maxWidth: '100%',
+        overflow: 'hidden'
+      }}>
+        {/* Header Section */}
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+          justifyContent: 'space-between', 
+          alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center',
+          gap: window.innerWidth <= 768 ? '16px' : '0'
+        }}>
+          {/* Header Text */}
           <div>
             <h1 style={{ 
-              fontSize: '1.875rem', 
+              fontSize: window.innerWidth <= 768 ? '24px' : '30px', 
               fontWeight: '700', 
-              color: '#003366',
-              marginBottom: '0.5rem'
+              color: '#1e293b',
+              marginBottom: '8px'
             }}>
-              Partner Dashboard
+              Dashboard
             </h1>
-            <p style={{ color: '#4b5563' }}>
+            <p style={{ 
+              color: '#64748b',
+              fontSize: window.innerWidth <= 768 ? '14px' : '16px'
+            }}>
               Welcome back to your partner portal
             </p>
           </div>
-          <div className="mt-4 md:mt-0 flex space-x-2">
+          
+          {/* Header Actions */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px',
+            width: window.innerWidth <= 768 ? '100%' : 'auto'
+          }}>
             <button style={{ 
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.375rem',
-              border: '1px solid #e5e7eb',
+              justifyContent: 'center',
+              width: window.innerWidth <= 768 ? '48px' : '40px',
+              height: window.innerWidth <= 768 ? '48px' : '40px',
+              borderRadius: '8px',
               backgroundColor: 'white',
-              color: '#4b5563',
-              fontWeight: '500',
-              cursor: 'pointer'
+              border: '1px solid #e2e8f0',
+              color: '#64748b',
+              cursor: 'pointer',
+              flexShrink: 0
             }}>
-              <Bell size={16} />
-              Notifications
+              <Bell size={window.innerWidth <= 768 ? 24 : 20} />
             </button>
+            
             <button style={{ 
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.375rem',
-              backgroundColor: '#00d084',
-              color: '#003366',
-              fontWeight: '600',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '0 20px',
+              height: window.innerWidth <= 768 ? '48px' : '40px',
+              borderRadius: '8px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              fontWeight: '500',
               border: 'none',
               cursor: 'pointer',
-              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+              flex: window.innerWidth <= 768 ? '1' : 'none',
+              whiteSpace: 'nowrap'
             }}>
-              <Plus size={16} />
+              <Plus size={window.innerWidth <= 768 ? 24 : 18} />
               New Form
             </button>
           </div>
         </div>
         
-        {/* Stats Overview */}
-        <StatsOverview />
+        {/* Stats Cards Section */}
+        <div style={{
+          width: '100%',
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}>
+          <StatsCards />
+        </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        {/* Main Content Section - now full width */}
+        <div style={{ 
+          width: '100%'
+        }}>
+          {/* Tabs and Content */}
+          <div style={{ 
+            backgroundColor: 'white', 
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden',
+            width: '100%'
+          }}>
+            {/* Tabs Container */}
             <div style={{ 
-              backgroundColor: 'white', 
-              borderRadius: '0.5rem',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-              overflow: 'hidden'
+              width: '100%',
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
             }}>
-              <Tabs defaultValue="clients" className="w-full">
-                <div style={{ borderBottom: '1px solid #e5e7eb', padding: '1rem 1.5rem' }}>
-                  <TabsList style={{ 
-                    display: 'flex',
-                    backgroundColor: 'transparent',
-                    padding: 0,
-                    margin: 0
-                  }}>
-                    <TabsTrigger value="clients" style={{ 
-                      padding: '0.5rem 1rem',
-                      borderBottom: '2px solid transparent',
-                      color: '#4b5563',
-                      fontWeight: '500',
-                      backgroundColor: 'transparent',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      marginRight: '1rem'
-                    }} className="data-[state=active]:border-[#00d084] data-[state=active]:text-[#003366] data-[state=active]:font-semibold">
-                      Your Clients
-                    </TabsTrigger>
-                    <TabsTrigger value="activity" style={{ 
-                      padding: '0.5rem 1rem',
-                      borderBottom: '2px solid transparent',
-                      color: '#4b5563',
-                      fontWeight: '500',
-                      backgroundColor: 'transparent',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      marginRight: '1rem'
-                    }} className="data-[state=active]:border-[#00d084] data-[state=active]:text-[#003366] data-[state=active]:font-semibold">
-                      Recent Activity
-                    </TabsTrigger>
-                    <TabsTrigger value="forms" style={{ 
-                      padding: '0.5rem 1rem',
-                      borderBottom: '2px solid transparent',
-                      color: '#4b5563',
-                      fontWeight: '500',
-                      backgroundColor: 'transparent',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      marginRight: '1rem'
-                    }} className="data-[state=active]:border-[#00d084] data-[state=active]:text-[#003366] data-[state=active]:font-semibold">
-                      Forms
-                    </TabsTrigger>
-                    <TabsTrigger value="performance" style={{ 
-                      padding: '0.5rem 1rem',
-                      borderBottom: '2px solid transparent',
-                      color: '#4b5563',
-                      fontWeight: '500',
-                      backgroundColor: 'transparent',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }} className="data-[state=active]:border-[#00d084] data-[state=active]:text-[#003366] data-[state=active]:font-semibold">
-                      Performance
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-                
-                <div style={{ padding: '1.5rem' }}>
-                  <TabsContent value="clients">
-                    <ClientDirectory />
-                  </TabsContent>
+              {/* Tabs */}
+              <div style={{ 
+                display: 'flex', 
+                borderBottom: '1px solid #e2e8f0',
+                padding: '0 16px',
+                minWidth: 'max-content'
+              }}>
+                {[
+                  'Your Clients', 
+                  'Recent Activity', 
+                  'Forms', 
+                  'Performance',
+                  'Upcoming Appointments'
+                ].map((tab, index) => {
+                  const tabValue = tab.toLowerCase().replace(/\s+/g, '-');
+                  const isActive = activeTab === (index === 0 ? 'clients' : tabValue);
                   
-                  <TabsContent value="activity">
-                    <RecentActivity />
-                  </TabsContent>
-                  
-                  <TabsContent value="forms">
-                    <FormCategories />
-                  </TabsContent>
-                  
-                  <TabsContent value="performance">
-                    <PerformanceMetrics />
-                  </TabsContent>
-                </div>
-              </Tabs>
+                  return (
+                    <button
+                      key={tabValue}
+                      onClick={() => setActiveTab(index === 0 ? 'clients' : tabValue)}
+                      style={{
+                        padding: '16px 20px',
+                        fontWeight: isActive ? '600' : '500',
+                        color: isActive ? '#3b82f6' : '#64748b',
+                        borderBottom: isActive ? '2px solid #3b82f6' : '2px solid transparent',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                        fontSize: window.innerWidth <= 768 ? '14px' : '16px'
+                      }}
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-          
-          <div className="space-y-6">
+            
+            {/* Tab Content */}
             <div style={{ 
-              backgroundColor: 'white', 
-              borderRadius: '0.5rem',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-              padding: '1.5rem'
+              padding: window.innerWidth <= 768 ? '16px' : '24px',
+              overflow: 'auto'
             }}>
-              <UpcomingAppointments />
+              {activeTab === 'clients' && <ClientDirectory />}
+              {activeTab === 'recent-activity' && <RecentActivity />}
+              {activeTab === 'forms' && <Forms />}
+              {activeTab === 'performance' && <Performance />}
+              {activeTab === 'upcoming-appointments' && <UpcomingAppointments />}
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        /* Hide scrollbars but keep functionality */
+        div::-webkit-scrollbar {
+          display: none;
+        }
+        
+        @media (max-width: 768px) {
+          .tab-content {
+            padding: 16px;
+          }
+        }
+      `}</style>
     </DashboardLayout>
   );
-} 
+}
+
+export const formTypes = [
+  'self-disclosure',
+  'tax-return',
+  'real-estate',
+  'electricity'
+]; 

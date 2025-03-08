@@ -16,8 +16,8 @@ import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 
 // Dashboard components
-import Dashboard from './components/Dashboard';
 import PartnerDashboard from './components/dashboard/Dashboard';
+import ClientEdit from './components/dashboard/ClientEdit';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -75,6 +75,19 @@ const HomePage = () => (
   </div>
 );
 
+// Create a simple Dashboard component if it doesn't exist elsewhere
+const Dashboard = () => (
+  <div className="min-h-screen bg-light p-8">
+    <h1 className="text-3xl font-bold mb-4">Client Dashboard</h1>
+    <p>Welcome to your dashboard. This is a placeholder for the client dashboard.</p>
+    <div className="mt-4">
+      <a href="/partner-dashboard" className="text-blue-500 hover:underline">
+        Go to Partner Dashboard (if you have access)
+      </a>
+    </div>
+  </div>
+);
+
 function App() {
   return (
     <Switch>
@@ -83,7 +96,7 @@ function App() {
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       
-      {/* Protected routes - need to use render prop for these */}
+      {/* Protected routes */}
       <Route 
         path="/dashboard" 
         render={() => (
@@ -99,6 +112,35 @@ function App() {
         render={() => (
           <ProtectedRoute requiredRole="partner">
             <PartnerDashboard />
+          </ProtectedRoute>
+        )} 
+      />
+      
+      {/* Client Edit routes */}
+      <Route 
+        path="/clients/new/edit" 
+        render={() => (
+          <ProtectedRoute requiredRole="partner">
+            <ClientEdit />
+          </ProtectedRoute>
+        )} 
+      />
+      
+      <Route 
+        path="/clients/:id/edit" 
+        render={() => (
+          <ProtectedRoute requiredRole="partner">
+            <ClientEdit />
+          </ProtectedRoute>
+        )} 
+      />
+      
+      {/* Client forms routes */}
+      <Route 
+        path="/clients/:id/forms" 
+        render={() => (
+          <ProtectedRoute requiredRole="partner">
+            <div>Client Forms Page</div>
           </ProtectedRoute>
         )} 
       />

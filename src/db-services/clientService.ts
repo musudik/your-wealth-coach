@@ -42,11 +42,23 @@ export class ClientService {
     // Update client information
     async updateClient(clientId: string, updates: Partial<Client>): Promise<void> {
         try {
-            await updateDoc(
-                doc(firestore, this.CLIENTS_PATH, clientId),
-                updates
-            );
+            // Make sure clientId is a string
+            if (!clientId || typeof clientId !== 'string') {
+                throw new Error('Invalid client ID');
+            }
+            
+            // Make sure updates is an object
+            if (!updates || typeof updates !== 'object') {
+                throw new Error('Invalid updates object');
+            }
+            
+            // Get a reference to the document
+            const clientDocRef = doc(firestore, this.CLIENTS_PATH, clientId);
+            
+            // Update the document
+            await updateDoc(clientDocRef, updates);
         } catch (error) {
+            console.error("Error in updateClient:", error);
             throw new Error(`Failed to update client: ${error}`);
         }
     }
