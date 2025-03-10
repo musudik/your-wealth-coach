@@ -1,6 +1,5 @@
-import { PDFGenerator, pdfGenerator } from '../lib/pdf-generator';
+import { PDFGenerator } from '../db-services/lib/pdf-generator';
 import { TaxFormData } from '../components/forms/tax-return/taxTypes';
-import languageData from '../components/forms/tax-return/i18n/language.json';
 
 export const exportTaxReturnToPdf = (formData: TaxFormData): void => {
   // Create a new instance of PDFGenerator to avoid interfering with other PDF operations

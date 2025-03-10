@@ -1,6 +1,10 @@
-import { auth, firestore } from "@/lib/firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, firestore } from '../lib/firebase';
 
 // 🔹 Register User (Client or Partner)
 export const registerUser = async (email, password, name, role, parentId = null) => {

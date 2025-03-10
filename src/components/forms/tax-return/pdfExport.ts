@@ -8,12 +8,24 @@ doc.setFontSize(12);
 doc.setFont('helvetica', 'normal');
 let expensesY = 40;
 
-// Work-related expenses
-doc.setFont('helvetica', 'bold');
-doc.text(`${languageData.de.deductions.workRelatedExpenses} / ${languageData.en.deductions.workRelatedExpenses}:`, 20, expensesY);
-doc.setFont('helvetica', 'normal');
-doc.text(`${formData.deductions.workRelatedExpenses} €`, 200, expensesY);
-expensesY += 15;
+// Work-related expenses breakdown
+const workRelatedExpenses = [
+  { key: 'commutingExpenses', label: 'Commuting expenses' },
+  { key: 'businessTripsCosts', label: 'Business trips and training' },
+  { key: 'workEquipment', label: 'Work equipment' },
+  { key: 'homeOfficeAllowance', label: 'Home office allowance' },
+  { key: 'membershipFees', label: 'Membership fees & insurance' },
+  { key: 'applicationCosts', label: 'Application costs' },
+  { key: 'doubleHouseholdCosts', label: 'Double household management' }
+];
+
+workRelatedExpenses.forEach(expense => {
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${languageData.de.deductions[expense.key]} / ${languageData.en.deductions[expense.key]}:`, 20, expensesY);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${formData.deductions[expense.key]} €`, 200, expensesY);
+  expensesY += 15;
+});
 
 // Special expenses
 doc.setFont('helvetica', 'bold');
@@ -35,21 +47,6 @@ doc.text(`${languageData.de.deductions.insurancePremiums} / ${languageData.en.de
 doc.setFont('helvetica', 'normal');
 doc.text(`${formData.deductions.insurancePremiums} €`, 200, expensesY);
 expensesY += 15;
-
-// Craftsmen services
-if (formData.deductions.hasCraftsmenPayments) {
-  doc.setFont('helvetica', 'bold');
-  doc.text(`${languageData.de.deductions.hasCraftsmenServices} / ${languageData.en.deductions.hasCraftsmenServices}:`, 20, expensesY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Ja / Yes', 200, expensesY);
-  expensesY += 15;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Craftsmen Amount:', 20, expensesY);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`${formData.deductions.craftsmenAmount} €`, 200, expensesY);
-  expensesY += 15;
-}
 
 // Maintenance payments
 if (formData.deductions.hasMaintenancePayments) {
@@ -118,4 +115,82 @@ if (formData.deductions.hasPrivateInsurance) {
   doc.setFont('helvetica', 'normal');
   doc.text(`${formData.deductions.insuranceContributions} €`, 200, expensesY);
   expensesY += 15;
-} 
+}
+
+// Inside the expenses section
+const specialExpenses = [
+  { key: 'churchTax', label: 'Church Tax' },
+  { key: 'donationsAndFees', label: 'Donations and Membership Fees' },
+  { key: 'childcareCosts', label: 'Childcare Costs' },
+  { key: 'supportPayments', label: 'Support Payments' },
+  { key: 'privateSchoolFees', label: 'Private School Fees' },
+  { key: 'retirementProvisions', label: 'Retirement Provisions' },
+  { key: 'otherInsuranceExpenses', label: 'Other Insurance Expenses' },
+  { key: 'professionalTrainingCosts', label: 'Professional Training Costs' }
+];
+
+specialExpenses.forEach(expense => {
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${languageData.de.deductions[expense.key]} / ${languageData.en.deductions[expense.key]}:`, 20, expensesY);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${formData.deductions[expense.key]} €`, 200, expensesY);
+  expensesY += 15;
+});
+
+// Extraordinary expenses
+const extraordinaryExpenses = [
+  { key: 'medicalExpenses', label: 'Medical Expenses' },
+  { key: 'rehabilitationCosts', label: 'Rehabilitation Costs' },
+  { key: 'careCosts', label: 'Care Costs' },
+  { key: 'disabilityExpenses', label: 'Disability Expenses' },
+  { key: 'funeralCosts', label: 'Funeral Costs' },
+  { key: 'relativesSupportCosts', label: 'Support for Relatives' },
+  { key: 'divorceCosts', label: 'Divorce Costs' }
+];
+
+extraordinaryExpenses.forEach(expense => {
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${languageData.de.deductions[expense.key]} / ${languageData.en.deductions[expense.key]}:`, 20, expensesY);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${formData.deductions[expense.key]} €`, 200, expensesY);
+  expensesY += 15;
+});
+
+const insurancePremiums = [
+  { key: 'statutoryHealthInsurance', label: 'Statutory Health Insurance' },
+  { key: 'privateHealthInsurance', label: 'Private Health Insurance' },
+  { key: 'statutoryPensionInsurance', label: 'Statutory Pension Insurance' },
+  { key: 'privatePensionInsurance', label: 'Private Pension Insurance' },
+  { key: 'unemploymentInsurance', label: 'Unemployment Insurance' },
+  { key: 'accidentLiabilityInsurance', label: 'Accident and Liability Insurance' },
+  { key: 'disabilityInsurance', label: 'Disability Insurance' },
+  { key: 'termLifeInsurance', label: 'Term Life Insurance' }
+];
+
+insurancePremiums.forEach(insurance => {
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${languageData.de.deductions[insurance.key]} / ${languageData.en.deductions[insurance.key]}:`, 20, expensesY);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${formData.deductions[insurance.key]} €`, 200, expensesY);
+  expensesY += 15;
+});
+
+const householdServices = [
+  { key: 'householdServices', label: 'Household Services' },
+  { key: 'craftsmenServices', label: 'Craftsmen Services' },
+  { key: 'gardeningServices', label: 'Gardening Services' },
+  { key: 'cleaningServices', label: 'Cleaning Services' },
+  { key: 'caretakerServices', label: 'Caretaker Services' },
+  { key: 'householdCareCosts', label: 'Care Costs' },
+  { key: 'householdSupportServices', label: 'Support Services' },
+  { key: 'chimneySweepFees', label: 'Chimney Sweep Fees' },
+  { key: 'emergencySystemCosts', label: 'Emergency Systems' }
+];
+
+householdServices.forEach(service => {
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${languageData.de.deductions[service.key]} / ${languageData.en.deductions[service.key]}:`, 20, expensesY);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${formData.deductions[service.key]} €`, 200, expensesY);
+  expensesY += 15;
+}); 

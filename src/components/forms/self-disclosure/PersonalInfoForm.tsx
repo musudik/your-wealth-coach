@@ -1,19 +1,14 @@
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import languageData from "@/components/forms/self-disclosure/i18n/language.json";
-import { FormData } from "@/types/form";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Plus, Minus } from "lucide-react";
-import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormData } from "@/types/form";
+import { format } from "date-fns";
+import { Minus, Plus } from "lucide-react";
 import { nanoid } from "nanoid";
+import { FormSection } from "@/components/ui/form-section";
 
 interface PersonalInfoFormProps {
   formData: FormData;
@@ -33,13 +28,6 @@ interface ApplicantChildren {
   hasChildren: boolean;
   children: Child[];
 }
-
-// Helper component for the dual-language select options
-const SelectOption = ({ value, de, en }: { value: string; de: string; en: string }) => (
-  <SelectItem value={value}>
-    {de} ({en})
-  </SelectItem>
-);
 
 export function PersonalInfoForm({ formData, setFormData, errors, isSingleApplicant }: PersonalInfoFormProps) {
   const handleDateChange = (applicant: 'applicantA' | 'applicantB', field: string, date: Date | undefined) => {
@@ -198,6 +186,7 @@ export function PersonalInfoForm({ formData, setFormData, errors, isSingleApplic
   };
 
   return (
+    <FormSection title={`${languageData.de.personal_information} / ${languageData.en.personal_information}`}>
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-6">
         {/* Applicant A */}
@@ -364,81 +353,54 @@ export function PersonalInfoForm({ formData, setFormData, errors, isSingleApplic
                 className={errors?.applicantA?.placeOfBirth ? "border-red-500" : ""}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="block space-y-1">
                 <span>{languageData.de.nationality}</span>
                 <span className="text-sm text-gray-600 block">{languageData.en.nationality}</span>
               </Label>
-              <Select
+              <select
                 value={formData.personalInfo.applicantA.nationality}
-                onValueChange={(value) =>
-                  handleNationalityChange('applicantA', value)
-                }
+                onChange={(e) => handleNationalityChange('applicantA', e.target.value)}
+                className={errors?.applicantA?.nationality 
+                  ? "w-full p-2 border border-red-500 rounded-md" 
+                  : "w-full p-2 border rounded-md"}
               >
-                <SelectTrigger className={errors?.applicantA?.nationality ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select nationality" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageData.de.nationality_options).map(([key, de]) => (
-                    <SelectOption 
-                      key={key}
-                      value={key} 
-                      de={de} 
-                      en={languageData.en.nationality_options[key]} 
-                    />
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.personalInfo.applicantA.nationality === "other" && (
-                <div className="mt-2">
-                  <Label className="block space-y-1">
-                    <span>{languageData.de.other_nationality}</span>
-                    <span className="text-sm text-gray-600 block">{languageData.en.other_nationality}</span>
-                  </Label>
-                  <Input
-                    value={formData.personalInfo.applicantA.otherNationality || ""}
-                    onChange={(e) =>
-                      handleOtherNationalityChange('applicantA', e.target.value)
-                    }
-                    className={errors?.applicantA?.otherNationality ? "border-red-500" : ""}
-                  />
-                </div>
-              )}
+                <option value="">{languageData.de.select} / {languageData.en.select}</option>
+                {Object.entries(languageData.de.nationality_options).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {languageData.de.nationality_options[value]} / {languageData.en.nationality_options[value]}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="block space-y-1">
                 <span>{languageData.de.marital_status}</span>
                 <span className="text-sm text-gray-600 block">{languageData.en.marital_status}</span>
               </Label>
-              <Select
+              <select
                 value={formData.personalInfo.applicantA.maritalStatus}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    personalInfo: {
-                      ...formData.personalInfo,
-                      applicantA: {
-                        ...formData.personalInfo.applicantA,
-                        maritalStatus: value,
-                      },
-                    },
-                  })
-                }
+                onChange={(e) => setFormData({
+                  ...formData,
+                  personalInfo: {
+                    ...formData.personalInfo,
+                    applicantA: {
+                      ...formData.personalInfo.applicantA,
+                      maritalStatus: e.target.value
+                    }
+                  }
+                })}
+                className={errors?.applicantA?.maritalStatus 
+                  ? "w-full p-2 border border-red-500 rounded-md" 
+                  : "w-full p-2 border rounded-md"}
               >
-                <SelectTrigger className={errors?.applicantA?.maritalStatus ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select marital status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageData.de.marital_status_options).map(([key, de]) => (
-                    <SelectOption 
-                      key={key}
-                      value={key} 
-                      de={de} 
-                      en={languageData.en.marital_status_options[key]} 
-                    />
-                  ))}
-                </SelectContent>
-              </Select>
+                <option value="">{languageData.de.select} / {languageData.en.select}</option>
+                {Object.entries(languageData.de.marital_status_options).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {languageData.de.marital_status_options[value]} / {languageData.en.marital_status_options[value]}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label className="block space-y-1">
@@ -516,46 +478,25 @@ export function PersonalInfoForm({ formData, setFormData, errors, isSingleApplic
                 </Button>
               </div>
             )}
-            <div>
+            <div className="space-y-2">
               <Label className="block space-y-1">
                 <span>{languageData.de.occupation}</span>
                 <span className="text-sm text-gray-600 block">{languageData.en.occupation}</span>
               </Label>
-              <Select
+              <select
                 value={formData.personalInfo.applicantA.occupation}
-                onValueChange={(value) =>
-                  handleOccupationChange('applicantA', value)
-                }
+                onChange={(e) => handleOccupationChange('applicantA', e.target.value)}
+                className={errors?.applicantA?.occupation 
+                  ? "w-full p-2 border border-red-500 rounded-md" 
+                  : "w-full p-2 border rounded-md"}
               >
-                <SelectTrigger className={errors?.applicantA?.occupation ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select occupation" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageData.de.occupation_options).map(([key, de]) => (
-                    <SelectOption 
-                      key={key}
-                      value={key} 
-                      de={de} 
-                      en={languageData.en.occupation_options[key]} 
-                    />
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.personalInfo.applicantA.occupation === "other" && (
-                <div className="mt-2">
-                  <Label className="block space-y-1">
-                    <span>{languageData.de.other_occupation}</span>
-                    <span className="text-sm text-gray-600 block">{languageData.en.other_occupation}</span>
-                  </Label>
-                  <Input
-                    value={formData.personalInfo.applicantA.otherOccupation || ""}
-                    onChange={(e) =>
-                      handleOtherOccupationChange('applicantA', e.target.value)
-                    }
-                    className={errors?.applicantA?.otherOccupation ? "border-red-500" : ""}
-                  />
-                </div>
-              )}
+                <option value="">{languageData.de.select} / {languageData.en.select}</option>
+                {Object.entries(languageData.de.occupation_options).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {languageData.de.occupation_options[value]} / {languageData.en.occupation_options[value]}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label className="block space-y-1">
@@ -778,84 +719,56 @@ export function PersonalInfoForm({ formData, setFormData, errors, isSingleApplic
                 disabled={isSingleApplicant}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="block space-y-1">
                 <span>{languageData.de.nationality}</span>
                 <span className="text-sm text-gray-600 block">{languageData.en.nationality}</span>
               </Label>
-              <Select
+              <select
                 value={formData.personalInfo.applicantB.nationality}
-                onValueChange={(value) =>
-                  handleNationalityChange('applicantB', value)
-                }
+                onChange={(e) => handleNationalityChange('applicantB', e.target.value)}
+                className={errors?.applicantB?.nationality 
+                  ? "w-full p-2 border border-red-500 rounded-md" 
+                  : "w-full p-2 border rounded-md"}
                 disabled={isSingleApplicant}
               >
-                <SelectTrigger className={errors?.applicantB?.nationality ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select nationality" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageData.de.nationality_options).map(([key, de]) => (
-                    <SelectOption 
-                      key={key}
-                      value={key} 
-                      de={de} 
-                      en={languageData.en.nationality_options[key]} 
-                    />
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.personalInfo.applicantB.nationality === "other" && (
-                <div className="mt-2">
-                  <Label className="block space-y-1">
-                    <span>{languageData.de.other_nationality}</span>
-                    <span className="text-sm text-gray-600 block">{languageData.en.other_nationality}</span>
-                  </Label>
-                  <Input
-                    value={formData.personalInfo.applicantB.otherNationalityB || ""}
-                    onChange={(e) =>
-                      handleOtherNationalityChange('applicantB', e.target.value)
-                    }
-                    className={errors?.applicantB?.otherNationalityB ? "border-red-500" : ""}
-                    disabled={isSingleApplicant}
-                  />
-                </div>
-              )}
+                <option value="">{languageData.de.select} / {languageData.en.select}</option>
+                {Object.entries(languageData.de.nationality_options).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {languageData.de.nationality_options[value]} / {languageData.en.nationality_options[value]}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="block space-y-1">
                 <span>{languageData.de.marital_status}</span>
                 <span className="text-sm text-gray-600 block">{languageData.en.marital_status}</span>
               </Label>
-              <Select
+              <select
                 value={formData.personalInfo.applicantB.maritalStatus}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    personalInfo: {
-                      ...formData.personalInfo,
-                      applicantB: {
-                        ...formData.personalInfo.applicantB,
-                        maritalStatus: value,
-                      },
-                    },
-                  })
-                }
+                onChange={(e) => setFormData({
+                  ...formData,
+                  personalInfo: {
+                    ...formData.personalInfo,
+                    applicantB: {
+                      ...formData.personalInfo.applicantB,
+                      maritalStatus: e.target.value
+                    }
+                  }
+                })}
+                className={errors?.applicantB?.maritalStatus 
+                  ? "w-full p-2 border border-red-500 rounded-md" 
+                  : "w-full p-2 border rounded-md"}
                 disabled={isSingleApplicant}
               >
-                <SelectTrigger className={errors?.applicantB?.maritalStatus ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select marital status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageData.de.marital_status_options).map(([key, de]) => (
-                    <SelectOption 
-                      key={key}
-                      value={key} 
-                      de={de} 
-                      en={languageData.en.marital_status_options[key]} 
-                    />
-                  ))}
-                </SelectContent>
-              </Select>
+                <option value="">{languageData.de.select} / {languageData.en.select}</option>
+                {Object.entries(languageData.de.marital_status_options).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {languageData.de.marital_status_options[value]} / {languageData.en.marital_status_options[value]}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label className="block space-y-1">
@@ -944,43 +857,21 @@ export function PersonalInfoForm({ formData, setFormData, errors, isSingleApplic
                 <span>{languageData.de.occupation}</span>
                 <span className="text-sm text-gray-600 block">{languageData.en.occupation}</span>
               </Label>
-              <Select
+              <select
                 value={formData.personalInfo.applicantB.occupation}
-                onValueChange={(value) =>
-                  handleOccupationChange('applicantB', value)
-                }
+                onChange={(e) => handleOccupationChange('applicantB', e.target.value)}
+                className={errors?.applicantB?.occupation 
+                  ? "w-full p-2 border border-red-500 rounded-md" 
+                  : "w-full p-2 border rounded-md"}
                 disabled={isSingleApplicant}
               >
-                <SelectTrigger className={errors?.applicantB?.occupation ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select occupation" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageData.de.occupation_options).map(([key, de]) => (
-                    <SelectOption 
-                      key={key}
-                      value={key} 
-                      de={de} 
-                      en={languageData.en.occupation_options[key]} 
-                    />
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.personalInfo.applicantB.occupation === "other" && (
-                <div className="mt-2">
-                  <Label className="block space-y-1">
-                    <span>{languageData.de.other_occupation}</span>
-                    <span className="text-sm text-gray-600 block">{languageData.en.other_occupation}</span>
-                  </Label>
-                  <Input
-                    value={formData.personalInfo.applicantB.otherOccupationB || ""}
-                    onChange={(e) =>
-                      handleOtherOccupationChange('applicantB', e.target.value)
-                    }
-                    className={errors?.applicantB?.otherOccupationB ? "border-red-500" : ""}
-                    disabled={isSingleApplicant}
-                  />
-                </div>
-              )}
+                <option value="">{languageData.de.select} / {languageData.en.select}</option>
+                {Object.entries(languageData.de.occupation_options).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {languageData.de.occupation_options[value]} / {languageData.en.occupation_options[value]}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label className="block space-y-1">
@@ -1033,5 +924,6 @@ export function PersonalInfoForm({ formData, setFormData, errors, isSingleApplic
         </div>
       </div>
     </div>
+    </FormSection>
   );
 } 

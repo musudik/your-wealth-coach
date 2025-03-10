@@ -37,187 +37,373 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
     return String(value);
   };
 
+  const InfoField: React.FC<{ label: string; value: any }> = ({ label, value }) => (
+    <div className="p-3 bg-gray-50 rounded-md">
+      <h3 className="text-sm font-medium text-gray-700">{label}</h3>
+      <p className="mt-1 text-sm text-gray-900">{safeRender(value)}</p>
+    </div>
+  );
+
+  const ChildrenSection: React.FC<{ children: any[] }> = ({ children }) => (
+  <div className="mt-4 space-y-4">
+    <h3 className="font-medium">Children / Kinder</h3>
+    <div className="grid grid-cols-1 gap-4">
+      {children.map((child, index) => (
+        <div key={index} className="bg-gray-50 p-4 rounded-md">
+          <h4 className="font-medium mb-2">Child {index + 1}</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoField 
+              label="First Name / Vorname" 
+              value={child.firstName} 
+            />
+            <InfoField 
+              label="Last Name / Nachname" 
+              value={child.lastName} 
+            />
+            <InfoField 
+              label="Date of Birth / Geburtsdatum" 
+              value={child.dateOfBirth} 
+            />
+            <InfoField 
+              label="Tax ID / Steuer-ID" 
+              value={child.taxId} 
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
   return (
     <div className="space-y-8">
       {/* Personal Information */}
       <FormSection title="Personal Information / Persönliche Informationen">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h3 className="font-medium">First Name / Vorname</h3>
-            <p>{safeRender(formData.personalInfo.firstName)}</p>
-          </div>
-          <div>
-            <h3 className="font-medium">Last Name / Nachname</h3>
-            <p>{safeRender(formData.personalInfo.lastName)}</p>
-          </div>
-          <div>
-            <h3 className="font-medium">Date of Birth / Geburtsdatum</h3>
-            <p>{safeRender(formData.personalInfo.dateOfBirth)}</p>
-          </div>
-          <div>
-            <h3 className="font-medium">Tax ID / Steuer-ID</h3>
-            <p>{safeRender(formData.personalInfo.taxId)}</p>
-          </div>
-          <div>
-            <h3 className="font-medium">Marital Status / Familienstand</h3>
-            <p>{safeRender(formData.personalInfo.maritalStatus)}</p>
-          </div>
-          <div>
-            <h3 className="font-medium">Email / E-Mail</h3>
-            <p>{safeRender(formData.personalInfo.email)}</p>
-          </div>
-          <div>
-            <h3 className="font-medium">Phone / Telefon</h3>
-            <p>{safeRender(formData.personalInfo.phone)}</p>
-          </div>
-          <div>
-            <h3 className="font-medium">Has Children / Hat Kinder</h3>
-            <p>{formatBoolean(formData.personalInfo.hasChildren)}</p>
-          </div>
+          <InfoField 
+            label="First Name / Vorname" 
+            value={formData.personalInfo.firstName} 
+          />
+          <InfoField 
+            label="Last Name / Nachname" 
+            value={formData.personalInfo.lastName} 
+          />
+          <InfoField 
+            label="Date of Birth / Geburtsdatum" 
+            value={formData.personalInfo.dateOfBirth} 
+          />
+          <InfoField 
+            label="Tax ID / Steuer-ID" 
+            value={formData.personalInfo.taxId} 
+          />
+          <InfoField 
+            label="Marital Status / Familienstand" 
+            value={formData.personalInfo.maritalStatus} 
+          />
+          <InfoField 
+            label="Email / E-Mail" 
+            value={formData.personalInfo.email} 
+          />
+          <InfoField 
+            label="Phone / Telefon" 
+            value={formData.personalInfo.phone} 
+          />
+          <InfoField 
+            label="Has Children / Hat Kinder" 
+            value={formatBoolean(formData.personalInfo.hasChildren)} 
+          />
         </div>
 
-        {/* Children Information */}
-        {formData.personalInfo.hasChildren && Array.isArray(formData.children) && formData.children.length > 0 && (
-          <div className="mt-4">
-            <h3 className="font-medium mb-2">Children / Kinder</h3>
-            {formData.children.map((child, index) => (
-              <div key={index} className="border p-3 rounded-md mb-3">
-                <h4 className="font-medium">Child {index + 1}</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  <div>
-                    <h5 className="text-sm font-medium">First Name / Vorname</h5>
-                    <p>{safeRender(child.firstName)}</p>
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-medium">Last Name / Nachname</h5>
-                    <p>{safeRender(child.lastName)}</p>
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-medium">Date of Birth / Geburtsdatum</h5>
-                    <p>{safeRender(child.dateOfBirth)}</p>
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-medium">Tax ID / Steuer-ID</h5>
-                    <p>{safeRender(child.taxId)}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Children Information - if applicable */}
+        {formData.personalInfo.hasChildren && (
+          <ChildrenSection children={formData.children} />
         )}
       </FormSection>
 
-      {/* Employment Information */}
+      {/* Employment Income */}
       <FormSection title="Employment Income / Einkünfte aus Anstellung">
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium">Are you employed? / Sind Sie angestellt?</h3>
-            <p>{formatBoolean(formData.incomeInfo.isEmployed)}</p>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Employed / Angestellt" 
+            value={formatBoolean(formData.incomeInfo.isEmployed)} 
+          />
           {formData.incomeInfo.isEmployed && (
-            <div className="ml-6 space-y-4">
-              <div>
-                <h3 className="font-medium">Employer / Arbeitgeber</h3>
-                <p>{safeRender(formData.incomeInfo.employer)}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Gross Annual Salary / Bruttojahresgehalt</h3>
-                <p>{formatCurrency(formData.incomeInfo.grossAnnualSalary)}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Tax Certificate / Lohnsteuerbescheinigung</h3>
-                <p>{formatBoolean(formData.incomeInfo.hasTaxCertificate)}</p>
-                {formData.incomeInfo.hasTaxCertificate && formData.incomeInfo.taxCertificateFile && (
-                  <p className="text-sm text-blue-600">File: {safeRender(formData.incomeInfo.taxCertificateFile)}</p>
-                )}
-              </div>
-              <div>
-                <h3 className="font-medium">Travel Subsidy / Fahrtkostenzuschuss</h3>
-                <p>{formatBoolean(formData.incomeInfo.hasTravelSubsidy)}</p>
-              </div>
-            </div>
+            <>
+              <InfoField 
+                label="Employer / Arbeitgeber" 
+                value={formData.incomeInfo.employer} 
+              />
+              <InfoField 
+                label="Gross Annual Salary / Bruttojahresgehalt" 
+                value={formatCurrency(formData.incomeInfo.grossAnnualSalary)} 
+              />
+              <InfoField 
+                label="Tax Certificate / Lohnsteuerbescheinigung" 
+                value={formatBoolean(formData.incomeInfo.hasTaxCertificate)} 
+              />
+              <InfoField 
+                label="Travel Subsidy / Fahrtkostenzuschuss" 
+                value={formatBoolean(formData.incomeInfo.hasTravelSubsidy)} 
+              />
+            </>
           )}
         </div>
       </FormSection>
 
-      {/* Business Information */}
-      <FormSection title="Self-Employment Income / Einkünfte aus Selbständigkeit">
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium">Do you own a business? / Besitzen Sie ein Unternehmen?</h3>
-            <p>{formatBoolean(formData.incomeInfo.isBusinessOwner)}</p>
-          </div>
+      {/* Expenses & Deductions */}
+      <FormSection title="Expenses & Deductions / Ausgaben & Abzüge">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Commuting Expenses / Wege zwischen Wohnung und Tätigkeitsstätte" 
+            value={formatCurrency(formData.deductions.commutingExpenses)} 
+          />
+          <InfoField 
+            label="Business Trips & Training / Dienstreisen und Fortbildungskosten" 
+            value={formatCurrency(formData.deductions.businessTripsCosts)} 
+          />
+          <InfoField 
+            label="Work Equipment / Arbeitsmittel" 
+            value={formatCurrency(formData.deductions.workEquipment)} 
+          />
+          <InfoField 
+            label="Home Office Allowance / Homeoffice-Pauschale" 
+            value={formatCurrency(formData.deductions.homeOfficeAllowance)} 
+          />
+          <InfoField 
+            label="Membership Fees & Insurance / Mitgliedsbeiträge & Versicherungen" 
+            value={formatCurrency(formData.deductions.membershipFees)} 
+          />
+          <InfoField 
+            label="Application Costs / Bewerbungskosten" 
+            value={formatCurrency(formData.deductions.applicationCosts)} 
+          />
+          <InfoField 
+            label="Double Household / Doppelte Haushaltsführung" 
+            value={formatCurrency(formData.deductions.doubleHouseholdCosts)} 
+          />
+          <InfoField 
+            label="Special Expenses / Sonderausgaben" 
+            value={formatCurrency(formData.deductions.specialExpenses)} 
+          />
+          <InfoField 
+            label="Insurance Premiums / Versicherungsbeiträge" 
+            value={formatCurrency(formData.deductions.insurancePremiums)} 
+          />
+        </div>
+      </FormSection>
 
+      {/* Special Expenses */}
+      <FormSection title="Special Expenses / Sonderausgaben">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Church Tax / Kirchensteuer" 
+            value={formatCurrency(formData.deductions.churchTax)} 
+          />
+          <InfoField 
+            label="Donations and Membership Fees / Spenden und Mitgliedsbeiträge" 
+            value={formatCurrency(formData.deductions.donationsAndFees)} 
+          />
+          <InfoField 
+            label="Childcare Costs / Kinderbetreuungskosten" 
+            value={formatCurrency(formData.deductions.childcareCosts)} 
+          />
+          <InfoField 
+            label="Support Payments / Unterhaltsleistungen" 
+            value={formatCurrency(formData.deductions.supportPayments)} 
+          />
+          <InfoField 
+            label="Private School Fees / Schulgeld für Privatschulen" 
+            value={formatCurrency(formData.deductions.privateSchoolFees)} 
+          />
+          <InfoField 
+            label="Retirement Provisions / Altersvorsorgeaufwendungen" 
+            value={formatCurrency(formData.deductions.retirementProvisions)} 
+          />
+          <InfoField 
+            label="Other Insurance Expenses / Sonstige Vorsorgeaufwendungen" 
+            value={formatCurrency(formData.deductions.otherInsuranceExpenses)} 
+          />
+          <InfoField 
+            label="Professional Training Costs / Berufsausbildungskosten" 
+            value={formatCurrency(formData.deductions.professionalTrainingCosts)} 
+          />
+        </div>
+      </FormSection>
+
+      {/* Extraordinary Expenses */}
+      <FormSection title="Extraordinary Expenses / Außergewöhnliche Belastungen">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Medical Expenses / Krankheitskosten" 
+            value={formatCurrency(formData.deductions.medicalExpenses)} 
+          />
+          <InfoField 
+            label="Rehabilitation Costs / Kur- und Rehabilitationskosten" 
+            value={formatCurrency(formData.deductions.rehabilitationCosts)} 
+          />
+          <InfoField 
+            label="Care Costs / Pflegekosten" 
+            value={formatCurrency(formData.deductions.careCosts)} 
+          />
+          <InfoField 
+            label="Disability Expenses / Behinderungsbedingte Aufwendungen" 
+            value={formatCurrency(formData.deductions.disabilityExpenses)} 
+          />
+          <InfoField 
+            label="Funeral Costs / Bestattungskosten" 
+            value={formatCurrency(formData.deductions.funeralCosts)} 
+          />
+          <InfoField 
+            label="Support for Relatives / Unterstützung Angehöriger" 
+            value={formatCurrency(formData.deductions.relativesSupportCosts)} 
+          />
+          <InfoField 
+            label="Divorce Costs / Scheidungskosten" 
+            value={formatCurrency(formData.deductions.divorceCosts)} 
+          />
+        </div>
+      </FormSection>
+
+      {/* Insurance Premiums */}
+      <FormSection title="Insurance Premiums / Versicherungsbeiträge">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Statutory Health Insurance / Gesetzliche Krankenversicherung" 
+            value={formatCurrency(formData.deductions.statutoryHealthInsurance)} 
+          />
+          <InfoField 
+            label="Private Health Insurance / Private Krankenversicherung" 
+            value={formatCurrency(formData.deductions.privateHealthInsurance)} 
+          />
+          <InfoField 
+            label="Statutory Pension Insurance / Gesetzliche Rentenversicherung" 
+            value={formatCurrency(formData.deductions.statutoryPensionInsurance)} 
+          />
+          <InfoField 
+            label="Private Pension Insurance / Private Rentenversicherung" 
+            value={formatCurrency(formData.deductions.privatePensionInsurance)} 
+          />
+          <InfoField 
+            label="Unemployment Insurance / Arbeitslosenversicherung" 
+            value={formatCurrency(formData.deductions.unemploymentInsurance)} 
+          />
+          <InfoField 
+            label="Accident and Liability Insurance / Unfall- und Haftpflichtversicherung" 
+            value={formatCurrency(formData.deductions.accidentLiabilityInsurance)} 
+          />
+          <InfoField 
+            label="Disability Insurance / Berufsunfähigkeitsversicherung" 
+            value={formatCurrency(formData.deductions.disabilityInsurance)} 
+          />
+          <InfoField 
+            label="Term Life Insurance / Risikolebensversicherung" 
+            value={formatCurrency(formData.deductions.termLifeInsurance)} 
+          />
+        </div>
+      </FormSection>
+
+      {/* Household Services */}
+      <FormSection title="Household Services / Haushaltsnahe Dienstleistungen">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Household Services / Haushaltsnahe Dienstleistungen" 
+            value={formatCurrency(formData.deductions.householdServices)} 
+          />
+          <InfoField 
+            label="Craftsmen Services / Handwerkerleistungen" 
+            value={formatCurrency(formData.deductions.craftsmenServices)} 
+          />
+          <InfoField 
+            label="Gardening Services / Gartenpflege und Winterdienst" 
+            value={formatCurrency(formData.deductions.gardeningServices)} 
+          />
+          <InfoField 
+            label="Cleaning Services / Reinigung der Wohnung und Fenster" 
+            value={formatCurrency(formData.deductions.cleaningServices)} 
+          />
+          <InfoField 
+            label="Caretaker Services / Hausmeister- und Hausreinigungsdienste" 
+            value={formatCurrency(formData.deductions.caretakerServices)} 
+          />
+          <InfoField 
+            label="Care Costs / Betreuungskosten" 
+            value={formatCurrency(formData.deductions.householdCareCosts)} 
+          />
+          <InfoField 
+            label="Support Services / Pflege- und Betreuungsleistungen" 
+            value={formatCurrency(formData.deductions.householdSupportServices)} 
+          />
+          <InfoField 
+            label="Chimney Sweep Fees / Schornsteinfegergebühren" 
+            value={formatCurrency(formData.deductions.chimneySweepFees)} 
+          />
+          <InfoField 
+            label="Emergency Systems / Notrufsysteme" 
+            value={formatCurrency(formData.deductions.emergencySystemCosts)} 
+          />
+        </div>
+      </FormSection>
+
+      {/* Business Income */}
+      <FormSection title="Business Income / Geschäftseinkünfte">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Business Owner / Unternehmer" 
+            value={formatBoolean(formData.incomeInfo.isBusinessOwner)} 
+          />
           {formData.incomeInfo.isBusinessOwner && (
-            <div className="ml-6 space-y-4">
-              <div>
-                <h3 className="font-medium">Business Type / Art des Unternehmens</h3>
-                <p>{safeRender(formData.incomeInfo.businessType)}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Business Earnings / Unternehmenseinnahmen</h3>
-                <p>{formatCurrency(formData.incomeInfo.businessEarnings)}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Business Expenses / Unternehmensausgaben</h3>
-                <p>{formatCurrency(formData.incomeInfo.businessExpenses)}</p>
-              </div>
-            </div>
+            <>
+              <InfoField 
+                label="Business Type / Unternehmensart" 
+                value={formData.incomeInfo.businessType} 
+              />
+              <InfoField 
+                label="Business Earnings / Einnahmen" 
+                value={formatCurrency(formData.incomeInfo.businessEarnings)} 
+              />
+              <InfoField 
+                label="Business Expenses / Ausgaben" 
+                value={formatCurrency(formData.incomeInfo.businessExpenses)} 
+              />
+            </>
           )}
         </div>
       </FormSection>
 
-      {/* Investments Information */}
-      <FormSection title="Stocks & Investments / Aktien & Investitionen">
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium">Income from stocks? / Einkünfte aus Aktien?</h3>
-            <p>{formatBoolean(formData.incomeInfo.hasStockIncome)}</p>
-          </div>
-
+      {/* Investments */}
+      <FormSection title="Investments / Kapitalanlagen">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoField 
+            label="Stock Income / Aktieneinkünfte" 
+            value={formatBoolean(formData.incomeInfo.hasStockIncome)} 
+          />
           {formData.incomeInfo.hasStockIncome && (
-            <div className="ml-6 space-y-4">
-              <div>
-                <h3 className="font-medium">Dividend Earnings / Dividendenerträge</h3>
-                <p>{formatCurrency(formData.incomeInfo.dividendEarnings)}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Bank Certificate / Bankbescheinigung</h3>
-                <p>{formatBoolean(formData.incomeInfo.hasBankCertificate)}</p>
-                {formData.incomeInfo.hasBankCertificate && formData.incomeInfo.bankCertificateFile && (
-                  <p className="text-sm text-blue-600">File: {safeRender(formData.incomeInfo.bankCertificateFile)}</p>
-                )}
-              </div>
-              <div>
-                <h3 className="font-medium">Stock Sales / Aktienverkäufe</h3>
-                <p>{formatBoolean(formData.incomeInfo.hasStockSales)}</p>
-                {formData.incomeInfo.hasStockSales && formData.incomeInfo.stockSalesCertificateFile && (
-                  <p className="text-sm text-blue-600">File: {safeRender(formData.incomeInfo.stockSalesCertificateFile)}</p>
-                )}
-                {!formData.incomeInfo.hasStockSales && (
-                  <div>
-                    <h3 className="font-medium">Profit/Loss per Stock / Gewinn/Verlust pro Aktie</h3>
-                    <p>{formatCurrency(formData.incomeInfo.stockProfitLoss)}</p>
-                  </div>
-                )}
-              </div>
-              <div>
-                <h3 className="font-medium">Foreign Stocks / Ausländische Aktien</h3>
-                <p>{formatBoolean(formData.incomeInfo.hasForeignStocks)}</p>
-                {formData.incomeInfo.hasForeignStocks && (
-                  <div className="ml-6 space-y-2">
-                    <div>
-                      <h3 className="font-medium">Foreign Tax Paid / Gezahlte ausländische Steuer</h3>
-                      <p>{formatCurrency(formData.incomeInfo.foreignTaxPaid)}</p>
-                    </div>
-                    {formData.incomeInfo.foreignTaxCertificateFile && (
-                      <p className="text-sm text-blue-600">File: {safeRender(formData.incomeInfo.foreignTaxCertificateFile)}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+            <>
+              <InfoField 
+                label="Dividend Earnings / Dividendenerträge" 
+                value={formatCurrency(formData.incomeInfo.dividendEarnings)} 
+              />
+              <InfoField 
+                label="Stock Sales / Aktienverkäufe" 
+                value={formatBoolean(formData.incomeInfo.hasStockSales)} 
+              />
+              {!formData.incomeInfo.hasStockSales && (
+                <InfoField 
+                  label="Profit/Loss per Stock / Gewinn/Verlust pro Aktie" 
+                  value={formatCurrency(formData.incomeInfo.stockProfitLoss)} 
+                />
+              )}
+              <InfoField 
+                label="Foreign Stocks / Ausländische Aktien" 
+                value={formatBoolean(formData.incomeInfo.hasForeignStocks)} 
+              />
+              {formData.incomeInfo.hasForeignStocks && (
+                <InfoField 
+                  label="Foreign Tax Paid / Gezahlte ausländische Steuer" 
+                  value={formatCurrency(formData.incomeInfo.foreignTaxPaid)} 
+                />
+              )}
+            </>
           )}
         </div>
       </FormSection>
@@ -272,91 +458,6 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
         </div>
       </FormSection>
 
-      {/* Expenses Information */}
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold border-b pb-2">
-          {languageData.de.deductions.title} / {languageData.en.deductions.title}
-        </h3>
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p className="font-medium">{languageData.de.deductions.workRelatedExpenses} / {languageData.en.deductions.workRelatedExpenses}</p>
-            <p>{formatCurrency(formData.deductions.workRelatedExpenses)}</p>
-          </div>
-          <div>
-            <p className="font-medium">{languageData.de.deductions.specialExpenses} / {languageData.en.deductions.specialExpenses}</p>
-            <p>{formatCurrency(formData.deductions.specialExpenses)}</p>
-          </div>
-          <div>
-            <p className="font-medium">{languageData.de.deductions.extraordinaryExpenses} / {languageData.en.deductions.extraordinaryExpenses}</p>
-            <p>{formatCurrency(formData.deductions.extraordinaryExpenses)}</p>
-          </div>
-          <div>
-            <p className="font-medium">{languageData.de.deductions.insurancePremiums} / {languageData.en.deductions.insurancePremiums}</p>
-            <p>{formatCurrency(formData.deductions.insurancePremiums)}</p>
-          </div>
-          
-          {formData.deductions.hasCraftsmenPayments && (
-            <>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.hasCraftsmenServices} / {languageData.en.deductions.hasCraftsmenServices}</p>
-                <p>Ja / Yes</p>
-              </div>
-              <div>
-                <p className="font-medium">Craftsmen Amount</p>
-                <p>{formatCurrency(formData.deductions.craftsmenAmount)}</p>
-              </div>
-            </>
-          )}
-          
-          {formData.deductions.hasMaintenancePayments && (
-            <>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.hasMaintenancePayments} / {languageData.en.deductions.hasMaintenancePayments}</p>
-                <p>Ja / Yes</p>
-              </div>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.maintenanceRecipient} / {languageData.en.deductions.maintenanceRecipient}</p>
-                <p>{safeRender(formData.deductions.maintenanceRecipient)}</p>
-              </div>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.maintenanceAmount} / {languageData.en.deductions.maintenanceAmount}</p>
-                <p>{formatCurrency(formData.deductions.maintenanceAmount)}</p>
-              </div>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.recipientsAbroad} / {languageData.en.deductions.recipientsAbroad}</p>
-                <p>{formatBoolean(formData.deductions.recipientsAbroad)}</p>
-              </div>
-            </>
-          )}
-          
-          {formData.deductions.hasSpecialExpensesDetailed && (
-            <>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.specialExpensesType} / {languageData.en.deductions.specialExpensesType}</p>
-                <p>{safeRender(formData.deductions.specialExpensesType)}</p>
-              </div>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.specialExpensesAmount} / {languageData.en.deductions.specialExpensesAmount}</p>
-                <p>{formatCurrency(formData.deductions.specialExpensesAmount)}</p>
-              </div>
-            </>
-          )}
-          
-          {formData.deductions.hasPrivateInsurance && (
-            <>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.insuranceTypes} / {languageData.en.deductions.insuranceTypes}</p>
-                <p>{safeRender(formData.deductions.insuranceTypes)}</p>
-              </div>
-              <div>
-                <p className="font-medium">{languageData.de.deductions.insuranceContributions} / {languageData.en.deductions.insuranceContributions}</p>
-                <p>{formatCurrency(formData.deductions.insuranceContributions)}</p>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
       {/* Tax Credits */}
       <FormSection title="Tax Credits / Steuergutschriften">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -374,6 +475,8 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
           </div>
         </div>
       </FormSection>
+
+      
     </div>
   );
 };

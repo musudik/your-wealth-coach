@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import React, { useState } from 'react';
+import { FormTemplate } from '@/components/ui/form-template';
+import React, { useState, useEffect } from 'react';
 import { saveTaxReturnForm } from '../../../db-services/lib/taxReturnService';
 import { exportTaxReturnToPdf } from '../../../utils/pdfExport';
-import ProgressBar from './ProgressBar';
 import BusinessStep from './steps/BusinessStep';
 import EmploymentStep from './steps/EmploymentStep';
 import ExpensesStep from './steps/ExpensesStep';
@@ -12,8 +11,10 @@ import InvestmentsStep from './steps/InvestmentsStep';
 import PersonalInfoStep from './steps/PersonalInfoStep';
 import RentalStep from './steps/RentalStep';
 import ReviewStep from './steps/ReviewStep';
+import SignatureStep from './steps/SignatureStep';
 import { TaxFormData, initialTaxFormData } from './taxTypes';
 import { validateTaxForm } from './validation';
+import { useLocation } from 'react-router-dom';
 
 // Define language data directly in the component to avoid import issues
 const languageData = {
@@ -46,6 +47,9 @@ const languageData = {
 };
 
 const TaxReturnForm: React.FC = () => {
+  const location = useLocation();
+  const [partnerId, setPartnerId] = useState<string | undefined>(undefined);
+  const [clientId, setClientId] = useState<string | undefined>(undefined);
   const [formData, setFormData] = useState<TaxFormData>(initialTaxFormData);
   const [currentStep, setCurrentStep] = useState(0);
   const [validationErrors, setValidationErrors] = useState<Record<string, any> | null>(null);
@@ -62,8 +66,33 @@ const TaxReturnForm: React.FC = () => {
     { title: 'Investments', component: InvestmentsStep },
     { title: 'Rental Income', component: RentalStep },
     { title: 'Foreign Income', component: ForeignIncomeStep },
-    { title: 'Review', component: ReviewStep }
+    { title: 'Review', component: ReviewStep },
+    { title: 'Sign & Submit', component: SignatureStep }
   ];
+
+  // Extract partnerId and clientId from URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const partnerParam = params.get('partner');
+    const clientParam = params.get('client');
+
+    console.log('URL Parameters:', { partnerParam, clientParam });
+
+    if (!partnerParam) {
+      console.error('Partner ID is missing from URL');
+      alert('Cannot load form: Partner ID is missing');
+      return;
+    }
+
+    if (!clientParam) {
+      console.error('Client ID is missing from URL');
+      alert('Cannot load form: Client ID is missing');
+      return;
+    }
+
+    setPartnerId(partnerParam);
+    setClientId(clientParam);
+  }, [location.search]);
 
   // Handle form field changes
   const handleChange = (section: keyof TaxFormData, field: string, value: any) => {
@@ -286,6 +315,9 @@ const TaxReturnForm: React.FC = () => {
       case 7: // Review
         return false; // No validation needed for review step
         
+      case 8: // Signature
+        return false; // No validation needed for signature step
+        
       default:
         return false;
     }
@@ -334,7 +366,6 @@ const TaxReturnForm: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = async () => {
-    // Validate entire form
     const errors = validateTaxForm(formData);
     setValidationErrors(errors);
     
@@ -342,14 +373,31 @@ const TaxReturnForm: React.FC = () => {
       setShowValidationErrors(true);
       return;
     }
+
+    if (!partnerId) {
+      console.error('Partner ID is required');
+      alert('Cannot submit form: Partner ID is missing');
+      return;
+    }
+
+    if (!clientId) {
+      console.error('Client ID is required');
+      alert('Cannot submit form: Client ID is missing');
+      return;
+    }
     
     setIsSubmitting(true);
     
     try {
-      // Save form data to Firebase
-      const formId = await saveTaxReturnForm(formData);
+      // Pass both partnerId and clientId to the form data
+      const formDataWithIds = {
+        ...formData,
+        partnerId,
+        clientId
+      };
+
+      const formId = await saveTaxReturnForm(formDataWithIds, partnerId);
       
-      // Update form status and ID
       setFormData(prev => ({
         ...prev,
         id: formId,
@@ -437,98 +485,53 @@ const TaxReturnForm: React.FC = () => {
     );
   };
 
-  // If form is submitted, show success message
-  if (isSubmitted) {
+  // Add loading state while parameters are being extracted
+  if (!partnerId || !clientId) {
     return (
-      <div className="container mx-auto  ">
-        <Card className="bg-white shadow-md">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="mt-3 text-lg font-medium text-gray-900">Tax Return Submitted Successfully</h2>
-              <p className="mt-2 text-sm text-gray-500">
-                Thank you for submitting your tax return. You will receive a confirmation email shortly.
-              </p>
-              <div className="mt-5 flex justify-center space-x-4">
-                <Button
-                  onClick={handleExportPdf}
-                  className=" py-2 bg-green-600 hover:bg-green-700"
-                >
-                  {languageData.de.buttons.exportPdf} / {languageData.en.buttons.exportPdf}
-                </Button>
-                <Button
-                  onClick={() => window.location.href = '/'}
-                  className=" py-2 bg-blue-600 hover:bg-blue-700"
-                >
-                  Return to Home
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-xl font-semibold mb-2">Loading...</div>
+          <div className="text-gray-600">Please wait while we load your form</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto  ">
-      <Card className="bg-white shadow-md">
-        <CardContent className="p-6">
-          <h1 className="  text-center">
-            {languageData.de.title} / {languageData.en.title}
-          </h1>
-          
-          <ProgressBar 
-            currentStep={currentStep} 
-            totalSteps={steps.length} 
-            stepTitles={steps.map(step => step.title)} 
-          />
-          
-          <div className="mt-8">
-            {renderStep()}
-          </div>
-          
-          <div className="mt-8 flex justify-between">
+    <FormTemplate
+      title={`${languageData.de.title} / ${languageData.en.title}`}
+      currentStep={currentStep}
+      totalSteps={steps.length}
+      steps={steps} 
+      isSubmitting={isSubmitting}
+      isSubmitted={isSubmitted}
+      showProgress={true}
+      onPrevious={handlePrevious}
+      onNext={handleNext}
+      onSubmit={handleSubmit}
+      renderSuccessMessage={() => (
+        <div className="text-center">
+          <div className="mt-5 flex justify-center space-x-4">
             <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className=" py-2"
+              onClick={handleExportPdf}
+              className="py-2 bg-green-600 hover:bg-green-700"
             >
-              {languageData.de.buttons.previous} / {languageData.en.buttons.previous}
+              {languageData.de.buttons.exportPdf} / {languageData.en.buttons.exportPdf}
             </Button>
-            
-            {currentStep === steps.length - 1 ? (
-              <div className="space-x-4">
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className=" py-2 bg-blue-600 hover:bg-blue-700"
-                >
-                  {isSubmitting ? (
-                    `${languageData.de.buttons.submitting} / ${languageData.en.buttons.submitting}`
-                  ) : (
-                    `${languageData.de.buttons.submit} / ${languageData.en.buttons.submit}`
-                  )}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                onClick={handleNext}
-                className=" py-2 bg-blue-600 hover:bg-blue-700"
-              >
-                {languageData.de.buttons.next} / {languageData.en.buttons.next}
-              </Button>
-            )}
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="py-2 bg-blue-600 hover:bg-blue-700"
+            >
+              Return to Home
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      )}
+    >
+      {renderStep()}
+    </FormTemplate>
   );
 };
 
 export { TaxReturnForm };
+  

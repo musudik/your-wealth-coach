@@ -173,12 +173,53 @@ export const validateIncomeInfo = (incomeInfo: TaxFormData['incomeInfo']) => {
 export const validateDeductions = (deductions: TaxFormData['deductions']) => {
   const errors: Record<string, boolean | Record<string, boolean>> = {};
   
-  // Validate numeric fields
-  errors.workRelatedExpenses = deductions.workRelatedExpenses < 0;
-  errors.specialExpenses = deductions.specialExpenses < 0;
-  errors.extraordinaryExpenses = deductions.extraordinaryExpenses < 0;
-  errors.insurancePremiums = deductions.insurancePremiums < 0;
-  
+  // Add new fields to numeric validation
+  const numericFields = [
+    'commutingExpenses',
+    'businessTripsCosts',
+    'workEquipment',
+    'homeOfficeAllowance',
+    'membershipFees',
+    'applicationCosts',
+    'doubleHouseholdCosts',
+    'churchTax',
+    'donationsAndFees',
+    'childcareCosts',
+    'supportPayments',
+    'privateSchoolFees',
+    'retirementProvisions',
+    'otherInsuranceExpenses',
+    'professionalTrainingCosts',
+    'medicalExpenses',
+    'rehabilitationCosts',
+    'careCosts',
+    'disabilityExpenses',
+    'funeralCosts',
+    'relativesSupportCosts',
+    'divorceCosts',
+    'statutoryHealthInsurance',
+    'privateHealthInsurance',
+    'statutoryPensionInsurance',
+    'privatePensionInsurance',
+    'unemploymentInsurance',
+    'accidentLiabilityInsurance',
+    'disabilityInsurance',
+    'termLifeInsurance',
+    'householdServices',
+    'craftsmenServices',
+    'gardeningServices',
+    'cleaningServices',
+    'caretakerServices',
+    'householdCareCosts',
+    'householdSupportServices',
+    'chimneySweepFees',
+    'emergencySystemCosts'
+  ];
+
+  numericFields.forEach(field => {
+    errors[field] = deductions[field] < 0;
+  });
+
   // Craftsmen services validation
   errors.hasCraftsmenPayments = deductions.hasCraftsmenPayments === undefined;
   
@@ -212,7 +253,23 @@ export const validateDeductions = (deductions: TaxFormData['deductions']) => {
     errors.insuranceContributions = deductions.insuranceContributions === undefined || deductions.insuranceContributions < 0;
   }
   
-  console.log('Deductions Validation Errors:', errors);
+  // Required documents validation
+  /* const requiredDocuments = [
+    'rentalContracts',
+    'annualStatements',
+    'operatingCosts',
+    'propertyTax',
+    'insurancePremiums',
+    'rentalIncome',
+    'depreciationProof'
+  ];
+
+  requiredDocuments.forEach(doc => {
+    const documentField = `documents_${doc}`;
+    errors[documentField] = !deductions[documentField] || 
+                          (Array.isArray(deductions[documentField]) && deductions[documentField].length === 0);
+  });
+ */
   return errors;
 };
 
@@ -286,6 +343,28 @@ export const validateTaxForm = (formData: TaxFormData): Record<string, any> | nu
   const taxCreditsErrors = validateTaxCredits(formData.taxCredits);
   if (Object.values(taxCreditsErrors).some(error => error)) {
     errors.taxCredits = taxCreditsErrors;
+  }
+  
+  // Validate signature when on the signature step
+  if (formData.signature) {
+    const signatureErrors: Record<string, boolean> = {};
+    
+    if (!formData.signature.place) {
+      signatureErrors.place = true;
+    }
+    if (!formData.signature.date) {
+      signatureErrors.date = true;
+    }
+    if (!formData.signature.time) {
+      signatureErrors.time = true;
+    }
+    if (!formData.signature.signature) {
+      signatureErrors.signature = true;
+    }
+
+    if (Object.keys(signatureErrors).length > 0) {
+      errors.signature = signatureErrors;
+    }
   }
   
   console.log('errors:', errors);

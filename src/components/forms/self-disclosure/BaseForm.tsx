@@ -1,4 +1,3 @@
-import { FormProgress } from "@/components/form-progress";
 import { AssetsForm } from "@/components/forms/self-disclosure/AssetsForm";
 import { HouseholdBudgetForm } from "@/components/forms/self-disclosure/HouseholdBudgetForm";
 import { PersonalInfoForm } from "@/components/forms/self-disclosure/PersonalInfoForm";
@@ -11,15 +10,15 @@ import {
   validateSignature
 } from "@/components/forms/self-disclosure/validation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormTemplate } from "@/components/ui/form-template";
 import { toast } from "@/hooks/use-toast";
-import { firebaseService } from "../../../db-services/lib/firebase-service";
-import { pdfGenerator } from "../../../db-services/lib/pdf-generator";
+import '@/styles/forms.css';
 import { FormData, FormStep } from "@/types/form";
 import { useEffect, useState } from "react";
 import { useLocation, useRoute } from "wouter";
-import '@/styles/forms.css';
+import { firebaseService } from "../../../db-services/lib/firebase-service";
+import { pdfGenerator } from "../../../db-services/lib/pdf-generator";
 // ... other imports
 
 export function SelfDisclosureForm() {
@@ -572,68 +571,114 @@ export function SelfDisclosureForm() {
     }
   };
 
-  return (
-    <div className="container mx-auto  ">
-      <Card className=" mx-auto bg-white/80 backdrop-blur-sm">
-        <div className="flex items-center justify-between ">
-          <h1 className=" capitalize">
-            {formId ? 'Edit' : 'New'} {params?.type?.replace(/-/g, " ")} Form
-          </h1>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="single-applicant"
-              checked={isSingleApplicant}
-              onCheckedChange={handleSingleApplicantChange}
-            />
-            <label
-              htmlFor="single-applicant"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Single Applicant
-            </label>
-          </div>
-        </div>
+  // Define steps array for the template
+  const formSteps = [
+    { title: "Personal Information", component: PersonalInfoForm },
+    { title: "Household Budget", component: HouseholdBudgetForm },
+    { title: "Assets", component: AssetsForm },
+    { title: "Review", component: ReviewForm },
+    { title: "Signature", component: SignatureForm }
+  ];
 
-        <FormProgress currentStep={Number(steps.indexOf(currentStep) + 1)} totalSteps={steps.length} progress={calculateProgress()} />
-
-        <div className="mt-6">
-          {renderStepContent()}
-
-          <div className="flex justify-between mt-6">
-            {currentStep !== "personal" && (
-              <Button onClick={handleBack} variant="outline">
-                Back
-              </Button>
-            )}
-            <div className="flex gap-2">
-              {isSubmitted && (
-                <Button
-                  onClick={generatePDF}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Export PDF
-                </Button>
-              )}
-              {currentStep === "signature" ? (
-                <Button
-                  onClick={handleSubmit}
-                  disabled={
-                    !formData.signature.signatureA || 
-                    (!isSingleApplicant && !formData.signature.signatureB) ||
-                    !formData.signature.place || 
-                    !formData.signature.date
-                  }
-                  className="bg-primary"
-                >
-                  {formId ? 'Update' : 'Submit'} Form
-                </Button>
-              ) : (
-                <Button onClick={handleNext}>Next</Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </Card>
+  // Custom success message component
+  const renderSuccessMessage = () => (
+    <div className="text-center">
+      <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+        <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 className="mt-3 text-lg font-medium text-gray-900">Form Submitted Successfully</h2>
+      <div className="mt-5 flex justify-center space-x-4">
+        <Button
+          onClick={generatePDF}
+          className="py-2 bg-green-600 hover:bg-green-700"
+        >
+          Export PDF
+        </Button>
+        <Button
+          onClick={() => window.location.href = '/'}
+          className="py-2 bg-blue-600 hover:bg-blue-700"
+        >
+          Return to Home
+        </Button>
+      </div>
     </div>
+  );
+
+  // Custom actions component
+  const renderCustomActions = () => (
+    <div className="flex justify-between w-full">
+      {currentStep !== "personal" && (
+        <Button onClick={handleBack} variant="outline">
+          Back
+        </Button>
+      )}
+      <div className="flex gap-2">
+        {isSubmitted && (
+          <Button
+            onClick={generatePDF}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            Export PDF
+          </Button>
+        )}
+        {currentStep === "signature" ? (
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              !formData.signature.signatureA || 
+              (!isSingleApplicant && !formData.signature.signatureB) ||
+              !formData.signature.place || 
+              !formData.signature.date
+            }
+            className="bg-primary"
+          >
+            {formId ? 'Update' : 'Submit'} Form
+          </Button>
+        ) : (
+          <Button onClick={handleNext}>Next</Button>
+        )}
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <FormTemplate
+      title={`${formId ? 'Edit' : 'New'} ${params?.type?.replace(/-/g, " ")} Form`}
+      currentStep={steps.indexOf(currentStep)}
+      totalSteps={steps.length}
+      steps={formSteps}
+      isSubmitting={loading}
+      isSubmitted={isSubmitted}
+      showProgress={true}
+      onPrevious={handleBack}
+      onNext={handleNext}
+      onSubmit={handleSubmit}
+      renderSuccessMessage={renderSuccessMessage}
+      customActions={renderCustomActions()}
+    >
+      <div className="flex items-center justify-end mb-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="single-applicant"
+            checked={isSingleApplicant}
+            onCheckedChange={handleSingleApplicantChange}
+          />
+          <label
+            htmlFor="single-applicant"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Single Applicant
+          </label>
+        </div>
+      </div>
+
+      {renderStepContent()}
+    </FormTemplate>
   );
 } 

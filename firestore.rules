@@ -51,7 +51,8 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isPartner() || isAdmin();
       allow update: if isOwner(clientId) || isPartner() || isAdmin();
-      allow delete: if isAdmin();
+      allow delete: if request.auth != null 
+        && request.auth.uid == resource.data.partnerId;
     }
 
     // Forms collection rules
@@ -63,7 +64,8 @@ service cloud.firestore {
         isPartner() || 
         isAdmin()
       );
-      allow delete: if isPartner() || isAdmin();
+      allow delete: if request.auth != null 
+        && request.auth.uid == resource.data.partnerId;
     }
     
     // Appointments collection

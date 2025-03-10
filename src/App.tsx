@@ -2,6 +2,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useEffect, useState, ReactNode } from 'react';
 import { getUserDetails } from './db-services/authService';
+import { useLocation } from 'react-router-dom';
 
 // Main components
 import Header from './components/Header';
@@ -18,6 +19,7 @@ import Signup from './components/auth/Signup';
 // Dashboard components
 import PartnerDashboard from './components/dashboard/Dashboard';
 import ClientEdit from './components/dashboard/ClientEdit';
+import { FormRouter } from './components/forms/FormRouter';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -78,7 +80,7 @@ const HomePage = () => (
 // Create a simple Dashboard component if it doesn't exist elsewhere
 const Dashboard = () => (
   <div className="min-h-screen bg-light p-8">
-    <h1 className="text-3xl font-bold mb-4">Client Dashboard</h1>
+    <h1 className="text-3xl  mb-4">Client Dashboard</h1>
     <p>Welcome to your dashboard. This is a placeholder for the client dashboard.</p>
     <div className="mt-4">
       <a href="/partner-dashboard" className="text-blue-500 hover:underline">
@@ -89,12 +91,34 @@ const Dashboard = () => (
 );
 
 function App() {
+  const location = useLocation();
+
+  // Parse form parameters from URL
+  const getFormParams = () => {
+    if (location.pathname.startsWith('/form/')) {
+      const searchParams = new URLSearchParams(location.search);
+      return {
+        type: location.pathname.split('/form/')[1],
+        clientId: searchParams.get('client'),
+        partnerId: searchParams.get('partner'),
+        formId: searchParams.get('form')
+      };
+    }
+    return null;
+  };
+
   return (
     <Switch>
       {/* Public routes */}
       <Route path="/" exact component={HomePage} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
+      
+      {/* Form routes */}
+      <Route 
+        path="/form/:formType"
+        component={FormRouter}
+      />
       
       {/* Protected routes */}
       <Route 

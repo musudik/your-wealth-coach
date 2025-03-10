@@ -64,11 +64,46 @@ export class ClientService {
     }
 
     // Delete client
-    async deleteClient(clientId: string): Promise<void> {
+    async deleteClient(clientId: string, partnerId: string): Promise<void> {
         try {
-            await deleteDoc(doc(firestore, this.CLIENTS_PATH, clientId));
+            // Reference to the client document
+            const clientRef = doc(firestore, this.CLIENTS_PATH, clientId);
+            
+            // Get the client data first to verify ownership
+            const clientSnap = await getDoc(clientRef);
+            
+            if (!clientSnap.exists()) {
+                throw new Error("Client not found");
+            }
+            
+            const clientData = clientSnap.data();
+            
+            // Verify that this client belongs to the partner
+            if (clientData.partnerId !== partnerId) {
+                throw new Error("Unauthorized to delete this client");
+            }
+            
+            // Delete the client document
+            await deleteDoc(clientRef);
+            
+            // Optionally, delete related documents (forms, etc.)
+            const formsQuery = query(
+                collection(firestore, "forms"),
+                where("clientId", "==", clientId)
+            );
+            
+            const formsSnapshot = await getDocs(formsQuery);
+            
+            // Delete all related forms
+            const deleteForms = formsSnapshot.docs.map(doc => 
+                deleteDoc(doc.ref)
+            );
+            
+            await Promise.all(deleteForms);
+            
         } catch (error) {
-            throw new Error(`Failed to delete client: ${error}`);
+            console.error("Error in deleteClient:", error);
+            throw new Error("Failed to delete client: " + error.message);
         }
     }
 

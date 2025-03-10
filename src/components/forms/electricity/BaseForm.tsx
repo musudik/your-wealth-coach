@@ -1,6 +1,6 @@
+import { FormSection } from "@/components/ui/form-section";
+import { FormTemplate } from "@/components/ui/form-template";
 import { useToast } from "@/components/ui/use-toast";
-import { formStyles } from "@/lib/form-styles";
-import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { z } from "zod";
@@ -8,8 +8,6 @@ import { firebaseService } from "../../../db-services/lib/firebase-service";
 import { pdfGenerator } from "../../../db-services/lib/pdf-generator";
 import languageData from "./i18n/language.json";
 import { electricityFormSchema, type ElectricityFormData } from "./validation";
-import { styles } from "../../../lib/styles";
-import { FormSection } from "@/components/ui/form-section";
 
 // Update the FormData interface to use the type from validation
 type FormData = ElectricityFormData;
@@ -53,6 +51,7 @@ export function ElectricityForm() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignatureConfirmed, setIsSignatureConfirmed] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (field: keyof Omit<FormData, 'signature'>, value: string) => {
     setFormData(prev => ({
@@ -181,6 +180,7 @@ export function ElectricityForm() {
         }
       });
       setErrors({});
+      setIsSubmitted(true);
     } catch (error) {
       console.error('Form submission error:', error);
       if (!(error instanceof Error && error.message === 'Validation failed')) {
@@ -196,21 +196,11 @@ export function ElectricityForm() {
   };
 
   return (
-    <div className="form-container">
-      <div className="form-header">
-        <button 
-          onClick={() => history.goBack()} 
-          className="form-back-button"
-        >
-          <ArrowLeft size={16} />
-          <span style={{ marginLeft: '5px' }}>Back</span>
-        </button>
-        <h2 className="form-title">
-          {languageData.de.title}
-          <span className="block text-sm text-gray-600">{languageData.en.title}</span>
-        </h2>
-      </div>
-
+    <FormTemplate
+      title={`${languageData.de.title} / ${languageData.en.title}`}
+      isSubmitting={isSubmitting}
+      isSubmitted={isSubmitted}
+    >
       <form onSubmit={handleSubmit}>
         <FormSection 
           title={languageData.de.personalInfo}
@@ -369,6 +359,6 @@ export function ElectricityForm() {
           </button>
         </div>
       </form>
-    </div>
+    </FormTemplate>
   );
 } 

@@ -30,7 +30,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       {/* Progress bar */}
       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
         <div 
-          className="h-full bg-blue-600 transition-all duration-300 ease-in-out"
+          className="h-full bg-green-600 transition-all duration-300 ease-in-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -41,7 +41,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           <div 
             key={index}
             className={`w-2 h-2 rounded-full ${
-              index <= currentStep ? 'bg-blue-600' : 'bg-gray-300'
+              index <= currentStep ? 'bg-green-600' : 'bg-gray-300'
             }`}
           />
         ))}
