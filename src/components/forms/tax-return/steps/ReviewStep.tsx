@@ -1,6 +1,6 @@
 import React from 'react';
 import { TaxFormData } from '../taxTypes';
-import FormSection from '../FormSection';
+import { FormSection } from "@/components/ui/form-section";
 import languageData from '../i18n/language.json';
 
 interface ReviewStepProps {

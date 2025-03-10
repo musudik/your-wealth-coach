@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { ArrowLeft, Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
+import { ClientService } from "../../db-services/clientService";
+import { firestore } from "../../db-services/firebase";
 import languageData from "../../i18n/language.json";
 import "../../styles/forms.css"; // Import the global form styles
-import { validateClientDetails, hasValidationErrors } from "./validation";
-import { firestore } from "../../db-services/firebase";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { ClientService } from "../../db-services/clientService";
+import { hasValidationErrors, validateClientDetails } from "./validation";
+import { FormSection } from "../../components/ui/form-section";
 
 interface PersonDetails {
   id?: string;
@@ -341,228 +342,410 @@ export default function ClientEdit() {
           <ArrowLeft size={16} />
           <span style={{ marginLeft: '5px' }}>Back</span>
         </button>
-        <div>
-          <h2 className="form-title">
-            {id && id !== 'new' ? 'Edit Client' : 'New Client'}
-          </h2>
-        </div>
+        <h2 className="form-title">
+          {id && id !== 'new' ? 'Edit Client' : 'New Client'}
+        </h2>
       </div>
 
       <form>
-        <div className="form-grid">
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Vorname</span>
-              <span className="form-label-subtext">First Name</span>
-            </label>
-            <input
-              type="text"
-              name="firstName"
-              value={clientDetails.firstName}
-              onChange={handleInputChange}
-              className={getInputClass('firstName')}
-            />
-            {hasError('firstName') && (
-              <p className="form-error-message">First name is required</p>
-            )}
-          </div>
+        <FormSection 
+          title="Personal Information"
+          subtitle="Client's personal details"
+        >
+          <div className="form-grid">
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Vorname</span>
+                <span className="form-label-subtext">First Name</span>
+              </label>
+              <input
+                type="text"
+                name="firstName"
+                value={clientDetails.firstName}
+                onChange={handleInputChange}
+                className={getInputClass('firstName')}
+              />
+              {hasError('firstName') && (
+                <p className="form-error-message">First name is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Nachname</span>
-              <span className="form-label-subtext">Last Name</span>
-            </label>
-            <input
-              type="text"
-              name="lastName"
-              value={clientDetails.lastName}
-              onChange={handleInputChange}
-              className={getInputClass('lastName')}
-            />
-            {hasError('lastName') && (
-              <p className="form-error-message">Last name is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Nachname</span>
+                <span className="form-label-subtext">Last Name</span>
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                value={clientDetails.lastName}
+                onChange={handleInputChange}
+                className={getInputClass('lastName')}
+              />
+              {hasError('lastName') && (
+                <p className="form-error-message">Last name is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Geburtsname (falls vorhanden)</span>
-              <span className="form-label-subtext">Birth Name (if any)</span>
-            </label>
-            <input
-              type="text"
-              name="birthName"
-              value={clientDetails.birthName}
-              onChange={handleInputChange}
-              className="form-input"
-            />
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Geburtsname (falls vorhanden)</span>
+                <span className="form-label-subtext">Birth Name (if any)</span>
+              </label>
+              <input
+                type="text"
+                name="birthName"
+                value={clientDetails.birthName}
+                onChange={handleInputChange}
+                className={getInputClass('birthName')}
+              />
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Adresse</span>
-              <span className="form-label-subtext">Address</span>
-            </label>
-            <input
-              type="text"
-              name="address"
-              value={clientDetails.address}
-              onChange={handleInputChange}
-              className={getInputClass('address')}
-            />
-            {hasError('address') && (
-              <p className="form-error-message">Address is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Adresse</span>
+                <span className="form-label-subtext">Address</span>
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={clientDetails.address}
+                onChange={handleInputChange}
+                className={getInputClass('address')}
+              />
+              {hasError('address') && (
+                <p className="form-error-message">Address is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Telefonnummer</span>
-              <span className="form-label-subtext">Telephone number</span>
-            </label>
-            <input
-              type="text"
-              name="telephone"
-              value={clientDetails.telephone}
-              onChange={handleInputChange}
-              className={getInputClass('telephone')}
-            />
-            {hasError('telephone') && (
-              <p className="form-error-message">Valid telephone number is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Telefonnummer</span>
+                <span className="form-label-subtext">Telephone number</span>
+              </label>
+              <input
+                type="text"
+                name="telephone"
+                value={clientDetails.telephone}
+                onChange={handleInputChange}
+                className={getInputClass('telephone')}
+              />
+              {hasError('telephone') && (
+                <p className="form-error-message">Valid telephone number is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">E-Mail-Adresse</span>
-              <span className="form-label-subtext">E-Mail ID</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={clientDetails.email}
-              onChange={handleInputChange}
-              className={getInputClass('email')}
-            />
-            {hasError('email') && (
-              <p className="form-error-message">Valid email address is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">E-Mail-Adresse</span>
+                <span className="form-label-subtext">E-Mail ID</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={clientDetails.email}
+                onChange={handleInputChange}
+                className={getInputClass('email')}
+              />
+              {hasError('email') && (
+                <p className="form-error-message">Valid email address is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Geburtsdatum</span>
-              <span className="form-label-subtext">Date of birth</span>
-            </label>
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={clientDetails.dateOfBirth}
-              onChange={handleInputChange}
-              className={getInputClass('dateOfBirth')}
-            />
-            {hasError('dateOfBirth') && (
-              <p className="form-error-message">Valid date of birth is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Geburtsdatum</span>
+                <span className="form-label-subtext">Date of birth</span>
+              </label>
+              <input
+                type="date"
+                name="dateOfBirth"
+                value={clientDetails.dateOfBirth}
+                onChange={handleInputChange}
+                className={getInputClass('dateOfBirth')}
+              />
+              {hasError('dateOfBirth') && (
+                <p className="form-error-message">Valid date of birth is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Geburtsort</span>
-              <span className="form-label-subtext">Place of birth</span>
-            </label>
-            <input
-              type="text"
-              name="placeOfBirth"
-              value={clientDetails.placeOfBirth}
-              onChange={handleInputChange}
-              className={getInputClass('placeOfBirth')}
-            />
-            {hasError('placeOfBirth') && (
-              <p className="form-error-message">Place of birth is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Geburtsort</span>
+                <span className="form-label-subtext">Place of birth</span>
+              </label>
+              <input
+                type="text"
+                name="placeOfBirth"
+                value={clientDetails.placeOfBirth}
+                onChange={handleInputChange}
+                className={getInputClass('placeOfBirth')}
+              />
+              {hasError('placeOfBirth') && (
+                <p className="form-error-message">Place of birth is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Staatsangehörigkeit</span>
-              <span className="form-label-subtext">Nationality</span>
-            </label>
-            <select
-              name="nationality"
-              value={clientDetails.nationality}
-              onChange={handleInputChange}
-              className={`form-select ${hasError('nationality') ? 'form-input-error' : ''}`}
-            >
-              <option value="">Select nationality</option>
-              {Object.entries(languageData.de.nationality_options).map(([key, value]) => (
-                <option key={key} value={key}>
-                  {value} ({languageData.en.nationality_options[key]})
-                </option>
-              ))}
-            </select>
-            {hasError('nationality') && (
-              <p className="form-error-message">Nationality is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Staatsangehörigkeit</span>
+                <span className="form-label-subtext">Nationality</span>
+              </label>
+              <select
+                name="nationality"
+                value={clientDetails.nationality}
+                onChange={handleInputChange}
+                className={`form-select ${hasError('nationality') ? 'form-input-error' : ''}`}
+              >
+                <option value="">Select nationality</option>
+                {Object.entries(languageData.de.nationality_options).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} ({languageData.en.nationality_options[key]})
+                  </option>
+                ))}
+              </select>
+              {hasError('nationality') && (
+                <p className="form-error-message">Nationality is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Familienstand</span>
-              <span className="form-label-subtext">Marital status</span>
-            </label>
-            <select
-              name="maritalStatus"
-              value={clientDetails.maritalStatus}
-              onChange={handleInputChange}
-              className={`form-select ${hasError('maritalStatus') ? 'form-input-error' : ''}`}
-            >
-              <option value="">Select marital status</option>
-              {Object.entries(languageData.de.marital_status_options).map(([key, value]) => (
-                <option key={key} value={key}>
-                  {value} ({languageData.en.marital_status_options[key]})
-                </option>
-              ))}
-            </select>
-            {hasError('maritalStatus') && (
-              <p className="form-error-message">Marital status is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Familienstand</span>
+                <span className="form-label-subtext">Marital status</span>
+              </label>
+              <select
+                name="maritalStatus"
+                value={clientDetails.maritalStatus}
+                onChange={handleInputChange}
+                className={`form-select ${hasError('maritalStatus') ? 'form-input-error' : ''}`}
+              >
+                <option value="">Select marital status</option>
+                {Object.entries(languageData.de.marital_status_options).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} ({languageData.en.marital_status_options[key]})
+                  </option>
+                ))}
+              </select>
+              {hasError('maritalStatus') && (
+                <p className="form-error-message">Marital status is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Beruf</span>
-              <span className="form-label-subtext">Occupation</span>
-            </label>
-            <input
-              type="text"
-              name="occupation"
-              value={clientDetails.occupation}
-              onChange={handleInputChange}
-              className={getInputClass('occupation')}
-            />
-            {hasError('occupation') && (
-              <p className="form-error-message">Occupation is required</p>
-            )}
-          </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Beruf</span>
+                <span className="form-label-subtext">Occupation</span>
+              </label>
+              <input
+                type="text"
+                name="occupation"
+                value={clientDetails.occupation}
+                onChange={handleInputChange}
+                className={getInputClass('occupation')}
+              />
+              {hasError('occupation') && (
+                <p className="form-error-message">Occupation is required</p>
+              )}
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">
-              <span className="form-label-text">Beruf seit</span>
-              <span className="form-label-subtext">Occupation since</span>
-            </label>
-            <input
-              type="date"
-              name="occupationSince"
-              value={clientDetails.occupationSince}
-              onChange={handleInputChange}
-              className={getInputClass('occupationSince')}
-            />
-            {hasError('occupationSince') && (
-              <p className="form-error-message">Valid date is required</p>
-            )}
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Beruf seit</span>
+                <span className="form-label-subtext">Occupation since</span>
+              </label>
+              <input
+                type="date"
+                name="occupationSince"
+                value={clientDetails.occupationSince}
+                onChange={handleInputChange}
+                className={getInputClass('occupationSince')}
+              />
+              {hasError('occupationSince') && (
+                <p className="form-error-message">Valid date is required</p>
+              )}
+            </div>
           </div>
-        </div>
+        </FormSection>
+
+        <FormSection 
+          title="Contact Information"
+          subtitle="Client's contact details"
+        >
+          <div className="form-grid">
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Adresse</span>
+                <span className="form-label-subtext">Address</span>
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={clientDetails.address}
+                onChange={handleInputChange}
+                className={getInputClass('address')}
+              />
+              {hasError('address') && (
+                <p className="form-error-message">Address is required</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Telefonnummer</span>
+                <span className="form-label-subtext">Telephone number</span>
+              </label>
+              <input
+                type="text"
+                name="telephone"
+                value={clientDetails.telephone}
+                onChange={handleInputChange}
+                className={getInputClass('telephone')}
+              />
+              {hasError('telephone') && (
+                <p className="form-error-message">Valid telephone number is required</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">E-Mail-Adresse</span>
+                <span className="form-label-subtext">E-Mail ID</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={clientDetails.email}
+                onChange={handleInputChange}
+                className={getInputClass('email')}
+              />
+              {hasError('email') && (
+                <p className="form-error-message">Valid email address is required</p>
+              )}
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection 
+          title="Additional Information"
+          subtitle="Other relevant details"
+        >
+          <div className="form-grid">
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Geburtsdatum</span>
+                <span className="form-label-subtext">Date of birth</span>
+              </label>
+              <input
+                type="date"
+                name="dateOfBirth"
+                value={clientDetails.dateOfBirth}
+                onChange={handleInputChange}
+                className={getInputClass('dateOfBirth')}
+              />
+              {hasError('dateOfBirth') && (
+                <p className="form-error-message">Valid date of birth is required</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Geburtsort</span>
+                <span className="form-label-subtext">Place of birth</span>
+              </label>
+              <input
+                type="text"
+                name="placeOfBirth"
+                value={clientDetails.placeOfBirth}
+                onChange={handleInputChange}
+                className={getInputClass('placeOfBirth')}
+              />
+              {hasError('placeOfBirth') && (
+                <p className="form-error-message">Place of birth is required</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Staatsangehörigkeit</span>
+                <span className="form-label-subtext">Nationality</span>
+              </label>
+              <select
+                name="nationality"
+                value={clientDetails.nationality}
+                onChange={handleInputChange}
+                className={`form-select ${hasError('nationality') ? 'form-input-error' : ''}`}
+              >
+                <option value="">Select nationality</option>
+                {Object.entries(languageData.de.nationality_options).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} ({languageData.en.nationality_options[key]})
+                  </option>
+                ))}
+              </select>
+              {hasError('nationality') && (
+                <p className="form-error-message">Nationality is required</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Familienstand</span>
+                <span className="form-label-subtext">Marital status</span>
+              </label>
+              <select
+                name="maritalStatus"
+                value={clientDetails.maritalStatus}
+                onChange={handleInputChange}
+                className={`form-select ${hasError('maritalStatus') ? 'form-input-error' : ''}`}
+              >
+                <option value="">Select marital status</option>
+                {Object.entries(languageData.de.marital_status_options).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} ({languageData.en.marital_status_options[key]})
+                  </option>
+                ))}
+              </select>
+              {hasError('maritalStatus') && (
+                <p className="form-error-message">Marital status is required</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Beruf</span>
+                <span className="form-label-subtext">Occupation</span>
+              </label>
+              <input
+                type="text"
+                name="occupation"
+                value={clientDetails.occupation}
+                onChange={handleInputChange}
+                className={getInputClass('occupation')}
+              />
+              {hasError('occupation') && (
+                <p className="form-error-message">Occupation is required</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">Beruf seit</span>
+                <span className="form-label-subtext">Occupation since</span>
+              </label>
+              <input
+                type="date"
+                name="occupationSince"
+                value={clientDetails.occupationSince}
+                onChange={handleInputChange}
+                className={getInputClass('occupationSince')}
+              />
+              {hasError('occupationSince') && (
+                <p className="form-error-message">Valid date is required</p>
+              )}
+            </div>
+          </div>
+        </FormSection>
 
         <div className="form-checkbox-container">
           <input

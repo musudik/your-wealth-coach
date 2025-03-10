@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { firebaseService } from "@/lib/firebase-service";
-import languageData from "./i18n/language.json";
+import { formStyles } from "@/lib/form-styles";
+import { ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { z } from "zod";
-import { SignaturePad } from "@/components/signature-pad";
-import { pdfGenerator } from "@/lib/pdf-generator";
+import { firebaseService } from "../../../db-services/lib/firebase-service";
+import { pdfGenerator } from "../../../db-services/lib/pdf-generator";
+import languageData from "./i18n/language.json";
 import { electricityFormSchema, type ElectricityFormData } from "./validation";
+import { styles } from "../../../lib/styles";
+import { FormSection } from "@/components/ui/form-section";
 
 // Update the FormData interface to use the type from validation
 type FormData = ElectricityFormData;
@@ -34,6 +33,7 @@ interface FormErrors {
 
 export function ElectricityForm() {
   const { toast } = useToast();
+  const history = useHistory();
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -196,239 +196,179 @@ export function ElectricityForm() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <Card className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-orange-600">
-            {languageData.de.title}
-            <br />
-            <span className="text-sm text-gray-600 block">{languageData.en.title}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="block space-y-1">
-                  <span>{languageData.de.firstName}</span>
-                  <span className="text-sm text-gray-600 block">{languageData.en.firstName}</span>
-                </Label>
-                <Input
-                  id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) => handleChange('firstName', e.target.value)}
-                  className={errors.firstName ? 'border-red-500' : ''}
-                />
-                {errors.firstName && (
-                  <p className="text-red-500 text-sm">{errors.firstName}</p>
-                )}
-              </div>
+    <div className="form-container">
+      <div className="form-header">
+        <button 
+          onClick={() => history.goBack()} 
+          className="form-back-button"
+        >
+          <ArrowLeft size={16} />
+          <span style={{ marginLeft: '5px' }}>Back</span>
+        </button>
+        <h2 className="form-title">
+          {languageData.de.title}
+          <span className="block text-sm text-gray-600">{languageData.en.title}</span>
+        </h2>
+      </div>
 
-              <div className="space-y-2">
-                <Label className="block space-y-1">
-                  <span>{languageData.de.lastName}</span>
-                  <span className="text-sm text-gray-600 block">{languageData.en.lastName}</span>
-                </Label>
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) => handleChange('lastName', e.target.value)}
-                  className={errors.lastName ? 'border-red-500' : ''}
-                />
-                {errors.lastName && (
-                  <p className="text-red-500 text-sm">{errors.lastName}</p>
-                )}
-              </div>
+      <form onSubmit={handleSubmit}>
+        <FormSection 
+          title={languageData.de.personalInfo}
+          subtitle={languageData.en.personalInfo}
+        >
+          <div className="form-grid">
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.firstName}</span>
+                <span className="form-label-subtext">{languageData.en.firstName}</span>
+              </label>
+              <input
+                type="text"
+                value={formData.firstName}
+                onChange={(e) => handleChange('firstName', e.target.value)}
+                className={`form-input ${errors.firstName ? 'form-input-error' : ''}`}
+              />
+              {errors.firstName && (
+                <p className="form-error-message">{errors.firstName}</p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <Label className="block space-y-1">
-                <span>{languageData.de.email}</span>
-                <span className="text-sm text-gray-600 block">{languageData.en.email}</span>
-              </Label>
-              <Input
-                id="email"
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.lastName}</span>
+                <span className="form-label-subtext">{languageData.en.lastName}</span>
+              </label>
+              <input
+                type="text"
+                value={formData.lastName}
+                onChange={(e) => handleChange('lastName', e.target.value)}
+                className={`form-input ${errors.lastName ? 'form-input-error' : ''}`}
+              />
+              {errors.lastName && (
+                <p className="form-error-message">{errors.lastName}</p>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.email}</span>
+                <span className="form-label-subtext">{languageData.en.email}</span>
+              </label>
+              <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                className={errors.email ? 'border-red-500' : ''}
+                className={`form-input ${errors.email ? 'form-input-error' : ''}`}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email}</p>
+                <p className="form-error-message">{errors.email}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label className="block space-y-1">
-                <span>{languageData.de.mobile}</span>
-                <span className="text-sm text-gray-600 block">{languageData.en.mobile}</span>
-              </Label>
-              <Input
-                id="mobile"
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.mobile}</span>
+                <span className="form-label-subtext">{languageData.en.mobile}</span>
+              </label>
+              <input
+                type="tel"
                 value={formData.mobile}
                 onChange={(e) => handleChange('mobile', e.target.value)}
-                className={errors.mobile ? 'border-red-500' : ''}
+                className={`form-input ${errors.mobile ? 'form-input-error' : ''}`}
               />
               {errors.mobile && (
-                <p className="text-red-500 text-sm">{errors.mobile}</p>
+                <p className="form-error-message">{errors.mobile}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label className="block space-y-1">
-                <span>{languageData.de.address}</span>
-                <span className="text-sm text-gray-600 block">{languageData.en.address}</span>
-              </Label>
-              <Textarea
-                id="address"
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.address}</span>
+                <span className="form-label-subtext">{languageData.en.address}</span>
+              </label>
+              <textarea
                 value={formData.address}
                 onChange={(e) => handleChange('address', e.target.value)}
-                className={errors.address ? 'border-red-500' : ''}
+                className={`form-input ${errors.address ? 'form-input-error' : ''}`}
               />
               {errors.address && (
-                <p className="text-red-500 text-sm">{errors.address}</p>
+                <p className="form-error-message">{errors.address}</p>
+              )}
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection 
+          title={languageData.de.contractDetails}
+          subtitle={languageData.en.contractDetails}
+        >
+          <div className="form-grid">
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.currentContract}</span>
+                <span className="form-label-subtext">{languageData.en.currentContract}</span>
+              </label>
+              <textarea
+                value={formData.currentContract}
+                onChange={(e) => handleChange('currentContract', e.target.value)}
+                className={`form-input ${errors.currentContract ? 'form-input-error' : ''}`}
+              />
+              {errors.currentContract && (
+                <p className="form-error-message">{errors.currentContract}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label className="block space-y-1">
-                <span>{languageData.de.currentContract}</span>
-                <span className="text-sm text-gray-600 block">{languageData.en.currentContract}</span>
-              </Label>
-              <Textarea
-                id="currentContract"
-                value={formData.currentContract}
-                onChange={(e) => handleChange('currentContract', e.target.value)}
-                placeholder={languageData.de.currentContractPlaceholder}
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.numberOfPersons}</span>
+                <span className="form-label-subtext">{languageData.en.numberOfPersons}</span>
+              </label>
+              <input
+                type="text"
+                value={formData.numberOfPersons}
+                onChange={(e) => handleChange('numberOfPersons', e.target.value)}
+                className={`form-input ${errors.numberOfPersons ? 'form-input-error' : ''}`}
               />
+              {errors.numberOfPersons && (
+                <p className="form-error-message">{errors.numberOfPersons}</p>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="block space-y-1">
-                  <span>{languageData.de.numberOfPersons}</span>
-                  <span className="text-sm text-gray-600 block">{languageData.en.numberOfPersons}</span>
-                </Label>
-                <Input
-                  id="numberOfPersons"
-                  type="number"
-                  min="1"
-                  value={formData.numberOfPersons}
-                  onChange={(e) => handleChange('numberOfPersons', e.target.value)}
-                  className={errors.numberOfPersons ? 'border-red-500' : ''}
-                />
-                {errors.numberOfPersons && (
-                  <p className="text-red-500 text-sm">{errors.numberOfPersons}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="block space-y-1">
-                  <span>{languageData.de.consumption}</span>
-                  <span className="text-sm text-gray-600 block">{languageData.en.consumption}</span>
-                </Label>
-                <Input
-                  id="consumption"
-                  type="number"
-                  min="0"
-                  value={formData.consumption}
-                  onChange={(e) => handleChange('consumption', e.target.value)}
-                  className={errors.consumption ? 'border-red-500' : ''}
-                />
-                {errors.consumption && (
-                  <p className="text-red-500 text-sm">{errors.consumption}</p>
-                )}
-              </div>
+            <div className="form-field">
+              <label className="form-label">
+                <span className="form-label-text">{languageData.de.consumption}</span>
+                <span className="form-label-subtext">{languageData.en.consumption}</span>
+              </label>
+              <input
+                type="text"
+                value={formData.consumption}
+                onChange={(e) => handleChange('consumption', e.target.value)}
+                className={`form-input ${errors.consumption ? 'form-input-error' : ''}`}
+              />
+              {errors.consumption && (
+                <p className="form-error-message">{errors.consumption}</p>
+              )}
             </div>
+          </div>
+        </FormSection>
 
-            {/* Declaration Section */}
-            <div className="space-y-6 mt-8 border-t pt-6">
-              <div className="space-y-4 border rounded-md p-4 bg-gray-50">
-                <h3 className="font-medium mb-4">
-                  {languageData.de.declaration}
-                  <span className="text-sm text-gray-600 block">{languageData.en.declaration}</span>
-                </h3>
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-700">{languageData.de.declaration_text1}</p>
-                  <p className="text-sm text-gray-700 mt-2">{languageData.de.declaration_text2}</p>
-                  <br />
-                  <p className="text-sm text-gray-600">{languageData.en.declaration_text1}</p>
-                  <p className="text-sm text-gray-600">{languageData.en.declaration_text2}</p>
-                </div>
-              </div>
-
-              {/* Place and Date */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="block space-y-1">
-                    <span>{languageData.de.place}</span>
-                    <span className="text-sm text-gray-600 block">{languageData.en.place}</span>
-                  </Label>
-                  <Input
-                    value={formData.signature.place}
-                    onChange={(e) => handleSignatureFieldChange('place', e.target.value)}
-                    className={errors.signature?.place ? 'border-red-500' : ''}
-                  />
-                  {errors.signature?.place && (
-                    <p className="text-red-500 text-sm">{errors.signature.place}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label className="block space-y-1">
-                    <span>{languageData.de.date}</span>
-                    <span className="text-sm text-gray-600 block">{languageData.en.date}</span>
-                  </Label>
-                  <Input
-                    type="date"
-                    value={formData.signature.date}
-                    onChange={(e) => handleSignatureFieldChange('date', e.target.value)}
-                    className={errors.signature?.date ? 'border-red-500' : ''}
-                    // Set default value to today's date
-                    defaultValue={new Date().toISOString().split('T')[0]}
-                  />
-                  {errors.signature?.date && (
-                    <p className="text-red-500 text-sm">{errors.signature.date}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Signature */}
-              <div>
-                <Label className="block space-y-1">
-                  <span>{languageData.de.signature}</span>
-                  <span className="text-sm text-gray-600 block">{languageData.en.signature}</span>
-                </Label>
-                <SignaturePad
-                  onSave={handleSignature}
-                  initialValue={formData.signature.signatureData}
-                />
-              </div>
-
-              {/* Referred By */}
-              <div className="mt-6">
-                <Label className="block space-y-1">
-                  <span>{languageData.de.referred_by}</span>
-                  <span className="text-sm text-gray-600 block">{languageData.en.referred_by}</span>
-                </Label>
-                <Input
-                  placeholder={languageData.de.referred_by_placeholder}
-                  value={formData.signature.referredBy}
-                  onChange={(e) => handleSignatureFieldChange('referredBy', e.target.value)}
-                  className="max-w-md"
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isSignatureConfirmed}
-              className="w-full mt-6 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
-            >
-              {isSubmitting ? "Submitting..." : languageData.de.submit}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <div className="form-actions">
+          <button
+            type="button"
+            onClick={() => history.goBack()}
+            className="btn btn-cancel"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="btn btn-primary"
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 } 

@@ -1,24 +1,49 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import styles from './styles/form.module.css';
+import { useTranslation } from 'react-i18next';
+import { ArrowLeft } from "lucide-react";
+import { FormSection } from "@/components/ui/form-section";
 
 export function RealEstateForm() {
   const { t } = useTranslation('realEstate');
   
   return (
-    <div className={styles.formContainer}>
-      <Card className="bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-orange-600">
-            {t('title')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Form fields will go here */}
-        </CardContent>
-      </Card>
+    <div className="form-container">
+      <div className="form-header">
+        <button 
+          onClick={() => history.goBack()} 
+          className="form-back-button"
+        >
+          <ArrowLeft size={16} />
+          <span style={{ marginLeft: '5px' }}>Back</span>
+        </button>
+        <h2 className="form-title">
+          {t('title')}
+        </h2>
+      </div>
+
+      <form>
+        <FormSection 
+          title={t('propertyDetails.title')}
+          subtitle={t('propertyDetails.subtitle')}
+        >
+          <div className="form-grid">
+            {/* Property details fields */}
+          </div>
+        </FormSection>
+
+        <FormSection 
+          title={t('financialDetails.title')}
+          subtitle={t('financialDetails.subtitle')}
+        >
+          <div className="form-grid">
+            {/* Financial details fields */}
+          </div>
+        </FormSection>
+
+        <div className="form-actions">
+          {/* Form actions */}
+        </div>
+      </form>
     </div>
   );
 } 

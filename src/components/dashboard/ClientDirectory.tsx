@@ -1,14 +1,26 @@
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { getAuth } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { 
+import {
+  Check,
+  Copy,
+  Edit,
+  FileText,
   Mail,
-  Search, 
+  QrCode,
+  Search,
   Trash2,
-  UserPlus,
-  QrCode, 
-  FileText, 
-  Edit
+  UserPlus
 } from "lucide-react";
+import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { THEME } from "../../config";
@@ -18,7 +30,6 @@ import { Client } from "../../types/types";
 import { useToast } from "../ui/use-toast";
 
 // Import language data
-import languageData from "../../i18n/language.json";
 
 export default function ClientDirectory() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -32,6 +43,13 @@ export default function ClientDirectory() {
   
   // Use a ref to track if the component is mounted
   const isMountedRef = useRef(true);
+  
+  // Add these new states
+  const [expandedClient, setExpandedClient] = useState(null);
+  const [loadingForms, setLoadingForms] = useState({});
+  const [clientForms, setClientForms] = useState({});
+  const [copiedUrl, setCopiedUrl] = useState('');
+  const [expandedQRCodes, setExpandedQRCodes] = useState<string | null>(null);
   
   useEffect(() => {
     // Set isMounted to true when the component mounts
@@ -95,7 +113,7 @@ export default function ClientDirectory() {
     }
   };
   
-  const countAllPendingForms = async (clientsList) => {
+  const countAllPendingForms = async (clientsList:Client[]) => {
     try {
       if (!isMountedRef.current) return;
     
@@ -129,38 +147,94 @@ export default function ClientDirectory() {
     history.push('/clients/new/edit');
   };
   
-  const handleEditClient = (clientId) => {
+  const handleEditClient = (clientId:string) => {
     history.push(`/clients/${clientId}/edit`);
   };
   
-  const handleReviewForms = (clientId) => {
-    history.push(`/clients/${clientId}/forms`);
+  const handleReviewForms = async (clientId:string) => {
+    if (expandedClient === clientId) {
+      setExpandedClient(null);
+    } else {
+      setExpandedClient(clientId);
+      await fetchClientForms(clientId);
+    }
   };
   
-  const handleDeleteClient = async (clientId) => {
-    // Show confirmation dialog before deleting
-    if (window.confirm("Are you sure you want to delete this client?")) {
+  const fetchClientForms = async (clientId: string) => {
     try {
-        await clientService.deleteClient(clientId);
+      setLoadingForms(prev => ({ ...prev, [clientId]: true }));
       
-        if (isMountedRef.current) {
-          setClients(clients.filter(client => client.clientId !== clientId));
-      toast({
-            title: "Client Deleted",
-        description: "The client has been successfully deleted.",
-      });
-        }
+      const formsCollection = collection(firestore, "forms");
+      const formsQuery = query(
+        formsCollection,
+        where("clientId", "==", clientId)
+      );
+      
+      const formsSnapshot = await getDocs(formsQuery);
+      const processedForms = formsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+        
+        setClientForms(prev => ({ ...prev, [clientId]: processedForms }));
     } catch (error) {
-        console.error("Error deleting client:", error);
-        if (isMountedRef.current) {
+      console.error('Error fetching client forms:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load client forms. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingForms(prev => ({ ...prev, [clientId]: false }));
+    }
+  };
+  
+  const handleDeleteClient = async (clientId: string) => {
+    if (window.confirm("Are you sure you want to delete this client?")) {
+      try {
+        const partnerId = auth.currentUser?.uid;
+        
+        if (!partnerId) {
+          throw new Error("No partner ID available");
+        }
+
+        // First verify that this client belongs to the current partner
+        const client = clients.find(c => c.clientId === clientId);
+        if (!client || client.partnerId !== partnerId) {
+          throw new Error("Unauthorized to delete this client");
+        }
+
+        await clientService.deleteClient(clientId, partnerId); // Pass partnerId to the service
+        
+        setClients(prevClients => prevClients.filter(client => client.clientId !== clientId));
+      
+      toast({
+          title: "Success",
+          description: "Client deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting client:', error);
       toast({
         title: "Error",
         description: "Failed to delete client. Please try again.",
         variant: "destructive",
       });
     }
-      }
     }
+  };
+  
+  // Add helper function for form URLs
+  const getFormUrl = (clientId:string, formType:string) => {
+    const partnerId = auth.currentUser?.uid;
+    const origin = window.location.origin;
+    return `${origin}/form/${formType}?client=${clientId}&partner=${partnerId}`;
+  };
+  
+  // Add clipboard function
+  const copyToClipboard = (url:string) => {
+    navigator.clipboard.writeText(url);
+    setCopiedUrl(url);
+    setTimeout(() => setCopiedUrl(''), 2000);
   };
   
   // Filter clients based on search query
@@ -186,6 +260,112 @@ export default function ClientDirectory() {
     const firstName = client.personalInformation?.firstName || '';
     const lastName = client.personalInformation?.lastName || '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+  
+  // Modify the FormsDialog component to be a dropdown section
+  const QRCodeSection = ({ client }) => {
+    const formTypes = ['self-disclosure', 'tax-return', 'real-estate', 'electricity'];
+  
+  return (
+      <div style={{
+        borderTop: '1px solid #e5e7eb',
+        padding: '1rem',
+        backgroundColor: '#f9fafb'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1rem'
+        }}>
+          <h4 style={{
+            fontSize: '1rem',
+            fontWeight: '500',
+            color: '#111827'
+          }}>
+            Form Links for {getClientName(client)}
+          </h4>
+          <button
+            onClick={() => setExpandedQRCodes(null)}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '0.375rem',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              color: '#6b7280'
+            }}
+          >
+            ✕
+          </button>
+                      </div>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '1rem',
+          width: '100%'
+        }}>
+                              {formTypes.map((formType) => {
+            const url = getFormUrl(client.clientId, formType);
+                                return (
+              <div key={formType} style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '1rem',
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '0.5rem'
+              }}>
+                <p style={{
+                  fontWeight: '500',
+                  marginBottom: '0.5rem',
+                  textTransform: 'capitalize'
+                }}>
+                  {formType.replace('-', ' ')}
+                </p>
+                <div style={{
+                  background: 'white',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  marginBottom: '0.5rem'
+                }}>
+                                      <QRCodeSVG value={url} size={120} />
+                                    </div>
+                <button
+                                        onClick={() => copyToClipboard(url)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    padding: '0.5rem',
+                    borderRadius: '0.375rem',
+                    border: '1px solid #e5e7eb',
+                    background: 'transparent',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer'
+                  }}
+                                      >
+                                        {copiedUrl === url ? (
+                                          <>
+                      <Check size={14} style={{ marginRight: '0.25rem' }} />
+                                            Copied!
+                                          </>
+                                        ) : (
+                                          <>
+                      <Copy size={14} style={{ marginRight: '0.25rem' }} />
+                                            Copy URL
+                                          </>
+                                        )}
+                </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+      </div>
+    );
   };
   
   return (
@@ -276,9 +456,9 @@ export default function ClientDirectory() {
               <UserPlus size={18} style={{ marginRight: '8px' }} />
                 Add Client
             </button>
-            </div>
-          </div>
-
+                    </div>
+                  </div>
+                  
         {/* Content Area */}
         <div style={{ padding: '1rem' }}>
           {loading ? (
@@ -296,7 +476,7 @@ export default function ClientDirectory() {
                 borderTopColor: 'transparent',
                 animation: 'spin 1s linear infinite'
               }}></div>
-            </div>
+                      </div>
           ) : filteredClients.length === 0 ? (
             <div style={{
               textAlign: 'center',
@@ -315,7 +495,7 @@ export default function ClientDirectory() {
                   marginBottom: '1rem'
                 }}>
                   <UserPlus size={40} style={{ color: '#9ca3af' }} />
-                </div>
+                        </div>
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: '600',
@@ -343,9 +523,9 @@ export default function ClientDirectory() {
                 >
                   Add Client
                 </button>
-              </div>
-            </div>
-          ) : (
+                                        </div>
+                                      </div>
+                                    ) : (
             <div style={{ 
               display: 'flex', 
               flexDirection: 'column', 
@@ -360,9 +540,11 @@ export default function ClientDirectory() {
                     borderRadius: '0.5rem',
                     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
                     border: '1px solid #f3f4f6',
-                    width: '100%'
+                    width: '100%',
+                    overflow: 'hidden'
                   }}
                 >
+                  {/* Client Info Container */}
                   <div style={{ 
                     padding: '1rem',
                     width: '100%'
@@ -420,11 +602,11 @@ export default function ClientDirectory() {
                             textOverflow: 'ellipsis' 
                           }}>
                             {client.contactInformation?.email || 'No email'}
-                              </span>
-                          </div>
-                        </div>
+                          </span>
                       </div>
-                    
+                    </div>
+                  </div>
+                  
                     {/* Action Buttons */}
                     <div style={{
                       display: 'grid',
@@ -432,6 +614,7 @@ export default function ClientDirectory() {
                       gap: '0.5rem',
                       width: '100%'
                     }}>
+                      {/* Edit Button */}
                       <button 
                         style={{
                           display: 'flex',
@@ -454,6 +637,7 @@ export default function ClientDirectory() {
                         {window.innerWidth >= 640 && <span>Edit</span>}
                       </button>
                       
+                      {/* Forms Button */}
                       <button 
                         style={{
                           display: 'flex',
@@ -470,48 +654,13 @@ export default function ClientDirectory() {
                           padding: '0 0.5rem',
                           width: '70%'
                         }}
-                        onClick={() => handleReviewForms(client.clientId)}
+                        onClick={() => setExpandedQRCodes(expandedQRCodes === client.clientId ? null : client.clientId)}
                       >
                         <QrCode size={window.innerWidth < 640 ? 16 : 14} style={{ marginRight: window.innerWidth < 640 ? 0 : '0.375rem' }} />
-                        {window.innerWidth >= 640 && (
-                          <>
-                            <span>Forms</span>
-                            {pendingFormsCount[client.clientId] > 0 && (
-                              <span style={{
-                                marginLeft: '0.375rem',
-                                background: '#dbeafe',
-                                color: '#1d4ed8',
-                                fontSize: '0.75rem',
-                                fontWeight: '500',
-                                padding: '0 0.5rem',
-                                borderRadius: '9999px'
-                              }}>
-                                {pendingFormsCount[client.clientId]}
-                              </span>
-                            )}
-                                          </>
-                                        )}
-                        {window.innerWidth < 640 && pendingFormsCount[client.clientId] > 0 && (
-                          <span style={{
-                            position: 'absolute',
-                            top: '-5px',
-                            right: '-5px',
-                            background: '#ef4444',
-                            color: 'white',
-                            fontSize: '0.75rem',
-                            fontWeight: '500',
-                            width: '18px',
-                            height: '18px',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}>
-                            {pendingFormsCount[client.clientId]}
-                          </span>
-                        )}
+                        {window.innerWidth >= 640 && <span>Forms</span>}
                       </button>
                       
+                      {/* Review Button */}
                       <button 
                         style={{
                           display: 'flex',
@@ -534,6 +683,7 @@ export default function ClientDirectory() {
                         {window.innerWidth >= 640 && <span>Review</span>}
                       </button>
                       
+                      {/* Delete Button */}
                       <button 
                         style={{
                           display: 'flex',
@@ -555,14 +705,19 @@ export default function ClientDirectory() {
                         <Trash2 size={window.innerWidth < 640 ? 16 : 14} style={{ marginRight: window.innerWidth < 640 ? 0 : '0.375rem' }} />
                         {window.innerWidth >= 640 && <span>Delete</span>}
                       </button>
-                      </div>
-                    </div>
-                  </div>
-              ))}
+                                    </div>
                         </div>
+
+                  {/* QR Code Section */}
+                  {expandedQRCodes === client.clientId && (
+                    <QRCodeSection client={client} />
                       )}
                     </div>
+              ))}
             </div>
+          )}
+        </div>
+      </div>
       <style jsx>{`
         @keyframes spin {
           to {

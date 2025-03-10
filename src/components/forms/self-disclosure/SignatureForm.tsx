@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { SignaturePad } from "@/components/signature-pad";
-import { pdfGenerator } from "@/lib/pdf-generator";
 import languageData from "@/components/forms/self-disclosure/i18n/language.json";
-import { FormData } from "@/types/form";
+import { SignaturePad } from "@/components/signature-pad";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
+import { FormData } from "@/types/form";
+import { useState } from 'react';
+import { pdfGenerator } from "../../../db-services/lib/pdf-generator";
 
 interface SignatureFormProps {
   formData: FormData;
@@ -74,7 +73,7 @@ export function SignatureForm({
 
         {/* English Translations */}
         <h3 className="font-medium mb-4 mt-6">{languageData.en.declaration}</h3>
-        <div className="space-y-3 text-sm text-gray-600">
+        <div className="space-y-3 text-sm ">
           <p>{languageData.en.declaration_text1}</p>
           <p>{languageData.en.declaration_text2}</p>
         </div>
@@ -85,7 +84,7 @@ export function SignatureForm({
         <div>
           <Label>
             {languageData.de.place}
-            <span className="text-sm text-gray-600 block">{languageData.en.place}</span>
+            <span className="text-sm  block">{languageData.en.place}</span>
           </Label>
           <Input
             value={formData.signature.place}
@@ -103,7 +102,7 @@ export function SignatureForm({
         <div>
           <Label>
             {languageData.de.date}
-            <span className="text-sm text-gray-600 block">{languageData.en.date}</span>
+            <span className="text-sm  block">{languageData.en.date}</span>
           </Label>
           <Input
             type="date"
@@ -129,7 +128,7 @@ export function SignatureForm({
             <div>
               <Label className="block space-y-1">
                 <span>{languageData.de.signature_a}</span>
-                <span className="text-sm text-gray-600 block">{languageData.en.signature_a}</span>
+                <span className="text-sm  block">{languageData.en.signature_a}</span>
               </Label>
               <SignaturePad
                 onSave={handleSignatureA}
@@ -148,7 +147,7 @@ export function SignatureForm({
             <div style={{ display: isSingleApplicant ? "none" : "block" }}>
               <Label className="block space-y-1">
                 <span>{languageData.de.signature_b}</span>
-                <span className="text-sm text-gray-600 block">{languageData.en.signature_b}</span>
+                <span className="text-sm  block">{languageData.en.signature_b}</span>
               </Label>
               <SignaturePad
                 onSave={handleSignatureB}
@@ -167,7 +166,7 @@ export function SignatureForm({
         <div className="space-y-4">
           <Label className="block space-y-1">
             <span>{languageData.de.referred_by}</span>
-            <span className="text-sm text-gray-600 block">
+            <span className="text-sm  block">
               {languageData.en.referred_by}
             </span>
           </Label>

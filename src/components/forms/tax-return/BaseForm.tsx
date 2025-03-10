@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { saveTaxReturnForm } from '../../../db-services/lib/taxReturnService';
+import { exportTaxReturnToPdf } from '../../../utils/pdfExport';
+import ProgressBar from './ProgressBar';
+import BusinessStep from './steps/BusinessStep';
+import EmploymentStep from './steps/EmploymentStep';
+import ExpensesStep from './steps/ExpensesStep';
+import ForeignIncomeStep from './steps/ForeignIncomeStep';
+import InvestmentsStep from './steps/InvestmentsStep';
+import PersonalInfoStep from './steps/PersonalInfoStep';
+import RentalStep from './steps/RentalStep';
+import ReviewStep from './steps/ReviewStep';
 import { TaxFormData, initialTaxFormData } from './taxTypes';
 import { validateTaxForm } from './validation';
-import PersonalInfoStep from './steps/PersonalInfoStep';
-import ExpensesStep from './steps/ExpensesStep';
-import EmploymentStep from './steps/EmploymentStep';
-import BusinessStep from './steps/BusinessStep';
-import InvestmentsStep from './steps/InvestmentsStep';
-import RentalStep from './steps/RentalStep';
-import ForeignIncomeStep from './steps/ForeignIncomeStep';
-import ReviewStep from './steps/ReviewStep';
-import ProgressBar from './ProgressBar';
-import { exportTaxReturnToPdf } from '@/utils/pdfExport';
-import { saveTaxReturnForm } from '@/lib/taxReturnService';
 
 // Define language data directly in the component to avoid import issues
 const languageData = {
@@ -440,7 +440,7 @@ const TaxReturnForm: React.FC = () => {
   // If form is submitted, show success message
   if (isSubmitted) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto  ">
         <Card className="bg-white shadow-md">
           <CardContent className="p-6">
             <div className="text-center">
@@ -456,13 +456,13 @@ const TaxReturnForm: React.FC = () => {
               <div className="mt-5 flex justify-center space-x-4">
                 <Button
                   onClick={handleExportPdf}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700"
+                  className=" py-2 bg-green-600 hover:bg-green-700"
                 >
                   {languageData.de.buttons.exportPdf} / {languageData.en.buttons.exportPdf}
                 </Button>
                 <Button
                   onClick={() => window.location.href = '/'}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700"
+                  className=" py-2 bg-blue-600 hover:bg-blue-700"
                 >
                   Return to Home
                 </Button>
@@ -475,10 +475,10 @@ const TaxReturnForm: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto  ">
       <Card className="bg-white shadow-md">
         <CardContent className="p-6">
-          <h1 className="text-2xl font-bold mb-6 text-center">
+          <h1 className="  text-center">
             {languageData.de.title} / {languageData.en.title}
           </h1>
           
@@ -497,7 +497,7 @@ const TaxReturnForm: React.FC = () => {
               variant="outline"
               onClick={handlePrevious}
               disabled={currentStep === 0}
-              className="px-4 py-2"
+              className=" py-2"
             >
               {languageData.de.buttons.previous} / {languageData.en.buttons.previous}
             </Button>
@@ -507,7 +507,7 @@ const TaxReturnForm: React.FC = () => {
                 <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700"
+                  className=" py-2 bg-blue-600 hover:bg-blue-700"
                 >
                   {isSubmitting ? (
                     `${languageData.de.buttons.submitting} / ${languageData.en.buttons.submitting}`
@@ -519,7 +519,7 @@ const TaxReturnForm: React.FC = () => {
             ) : (
               <Button
                 onClick={handleNext}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700"
+                className=" py-2 bg-blue-600 hover:bg-blue-700"
               >
                 {languageData.de.buttons.next} / {languageData.en.buttons.next}
               </Button>

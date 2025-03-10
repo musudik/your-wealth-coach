@@ -1,28 +1,25 @@
-import { useState, useEffect } from "react";
-import { useRoute, useLocation } from "wouter";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { FormProgress } from "@/components/form-progress";
-import { PersonalInfoForm } from "@/components/forms/self-disclosure/PersonalInfoForm";
-import { HouseholdBudgetForm } from "@/components/forms/self-disclosure/HouseholdBudgetForm";
 import { AssetsForm } from "@/components/forms/self-disclosure/AssetsForm";
+import { HouseholdBudgetForm } from "@/components/forms/self-disclosure/HouseholdBudgetForm";
+import { PersonalInfoForm } from "@/components/forms/self-disclosure/PersonalInfoForm";
 import { ReviewForm } from "@/components/forms/self-disclosure/ReviewForm";
 import { SignatureForm } from "@/components/forms/self-disclosure/SignatureForm";
-import { FormData, FormStep } from "@/types/form";
-import { toast } from "@/hooks/use-toast";
-import { ref, push, set, get } from "firebase/database";
-import { db } from "@/lib/firebase";
-import { 
-  validatePersonalInfo, 
-  validateHouseholdBudget, 
-  validateAssets, 
-  validateSignature 
+import {
+  validateAssets,
+  validateHouseholdBudget,
+  validatePersonalInfo,
+  validateSignature
 } from "@/components/forms/self-disclosure/validation";
-import { pdfGenerator } from "@/lib/pdf-generator";
-import { firebaseService } from "@/lib/firebase-service";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { getDatabase } from "firebase/database";
-import { nanoid } from "nanoid";
+import { toast } from "@/hooks/use-toast";
+import { firebaseService } from "../../../db-services/lib/firebase-service";
+import { pdfGenerator } from "../../../db-services/lib/pdf-generator";
+import { FormData, FormStep } from "@/types/form";
+import { useEffect, useState } from "react";
+import { useLocation, useRoute } from "wouter";
+import '@/styles/forms.css';
 // ... other imports
 
 export function SelfDisclosureForm() {
@@ -576,10 +573,10 @@ export function SelfDisclosureForm() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <Card className="max-w-4xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold capitalize">
+    <div className="container mx-auto  ">
+      <Card className=" mx-auto bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between ">
+          <h1 className=" capitalize">
             {formId ? 'Edit' : 'New'} {params?.type?.replace(/-/g, " ")} Form
           </h1>
           <div className="flex items-center space-x-2">

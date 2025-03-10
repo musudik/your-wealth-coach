@@ -1,6 +1,6 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import FormSection from '../FormSection';
+import { FormSection } from "@/components/ui/form-section";
 import { TaxFormData } from '../taxTypes';
 import languageData from '../i18n/language.json';
 
