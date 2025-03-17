@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getAuth } from "firebase/auth";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import {
   Check,
   Copy,
@@ -18,7 +18,9 @@ import {
   QrCode,
   Search,
   Trash2,
-  UserPlus
+  UserPlus,
+  X,
+  Download
 } from "lucide-react";
 import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useRef, useState } from "react";
@@ -151,7 +153,7 @@ export default function ClientDirectory() {
     history.push(`/clients/${clientId}/edit`);
   };
   
-  const handleReviewForms = async (clientId:string) => {
+  const handleReviewForms = async (clientId: string) => {
     if (expandedClient === clientId) {
       setExpandedClient(null);
     } else {
@@ -164,10 +166,18 @@ export default function ClientDirectory() {
     try {
       setLoadingForms(prev => ({ ...prev, [clientId]: true }));
       
+      const partnerId = auth.currentUser?.uid;
+      
+      if (!partnerId) {
+        console.error("No partner ID available");
+        return;
+      }
+      
       const formsCollection = collection(firestore, "forms");
       const formsQuery = query(
         formsCollection,
-        where("clientId", "==", clientId)
+        where("clientId", "==", clientId),
+        where("partnerId", "==", partnerId)
       );
       
       const formsSnapshot = await getDocs(formsQuery);
@@ -175,6 +185,13 @@ export default function ClientDirectory() {
         id: doc.id,
         ...doc.data()
       }));
+      
+      // Sort forms by submission date (newest first)
+      processedForms.sort((a, b) => {
+        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        return dateB - dateA;
+      });
         
         setClientForms(prev => ({ ...prev, [clientId]: processedForms }));
     } catch (error) {
@@ -187,6 +204,338 @@ export default function ClientDirectory() {
     } finally {
       setLoadingForms(prev => ({ ...prev, [clientId]: false }));
     }
+  };
+  
+  // Add function to handle form approval
+  const handleApproveForm = async (formId: string, clientId: string) => {
+    try {
+      const partnerId = auth.currentUser?.uid;
+      
+      if (!partnerId) {
+        console.error("No partner ID available");
+        return;
+      }
+      
+      // Update the form status in Firestore
+      const formRef = doc(firestore, "forms", formId);
+      await updateDoc(formRef, {
+        status: "approved",
+        approvedAt: new Date().toISOString(),
+        approvedBy: partnerId
+      });
+      
+      // Update the local state
+      setClientForms(prev => ({
+        ...prev,
+        [clientId]: prev[clientId].map(form => 
+          form.id === formId 
+            ? { 
+              ...form,
+                status: "approved", 
+                approvedAt: new Date().toISOString(),
+                approvedBy: partnerId
+              } 
+            : form
+        )
+      }));
+      
+      toast({
+        title: "Success",
+        description: "Form has been approved.",
+      });
+    } catch (error) {
+      console.error('Error approving form:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve form. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  // Add function to handle document approval
+  const handleApproveDocument = async (formId: string, documentPath: string, clientId: string) => {
+    try {
+      const partnerId = auth.currentUser?.uid;
+      
+      if (!partnerId) {
+        console.error("No partner ID available");
+        return;
+      }
+      
+      // Create the update object with the approved document
+      const updateObj = {
+        [`documents.${documentPath}.status`]: "approved",
+        [`documents.${documentPath}.approvedAt`]: new Date().toISOString(),
+        [`documents.${documentPath}.approvedBy`]: partnerId
+      };
+      
+      // Update the document status in Firestore
+      const formRef = doc(firestore, "forms", formId);
+      await updateDoc(formRef, updateObj);
+      
+      // Update the local state
+      setClientForms(prev => ({
+        ...prev,
+        [clientId]: prev[clientId].map(form => {
+          if (form.id === formId) {
+            // Deep clone to avoid mutating the original object
+            const updatedForm = JSON.parse(JSON.stringify(form));
+            
+            // Navigate to the nested document and update it
+            if (!updatedForm.documents) {
+              updatedForm.documents = {};
+            }
+            
+            // Split the path and navigate to the document
+            const pathParts = documentPath.split('.');
+            let current = updatedForm.documents;
+            
+            // Navigate through the path parts except the last one
+            for (let i = 0; i < pathParts.length - 1; i++) {
+              const part = pathParts[i];
+              if (!current[part]) {
+                current[part] = {};
+              }
+              current = current[part];
+            }
+            
+            // Update the last part with the new status
+            const lastPart = pathParts[pathParts.length - 1];
+            if (!current[lastPart]) {
+              current[lastPart] = {};
+            }
+            
+            current[lastPart].status = "approved";
+            current[lastPart].approvedAt = new Date().toISOString();
+            current[lastPart].approvedBy = partnerId;
+            
+            return updatedForm;
+          }
+          return form;
+        })
+      }));
+      
+      toast({
+        title: "Success",
+        description: "Document has been approved.",
+      });
+    } catch (error) {
+      console.error('Error approving document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve document. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  // Update the FormsReviewTable component to include approval and PDF download functionality
+  const FormsReviewTable = ({ clientId, forms, loading, clientName }) => {
+    const handleViewForm = (formId) => {
+      window.open(`/forms/${formId}/view`, '_blank');
+    };
+    
+    const handleExportForm = (formId, formType) => {
+      // Find the form to get its data
+      const form = forms.find(f => f.id === formId);
+      if (!form) return;
+      
+      // Different form types might have different export methods
+      if (formType === 'tax-return') {
+        // For tax returns, use the exportTaxReturnToPdf function
+        import('../forms/tax-return/utils/pdfExport')
+          .then(module => {
+            module.exportTaxReturnToPdf(form);
+            toast({
+              title: "Success",
+              description: "Tax return PDF has been downloaded",
+            });
+          })
+          .catch(error => {
+            console.error('Error loading PDF export module:', error);
+            toast({
+              title: "Error",
+              description: "Failed to generate PDF. Please try again.",
+              variant: "destructive",
+            });
+          });
+      } else {
+        // For other form types, use a generic approach (you can implement specific methods for each form type)
+        toast({
+          title: "Information",
+          description: `PDF export for ${formType} forms is not yet implemented.`,
+        });
+      }
+    };
+    
+    const handleDeleteForm = async (formId) => {
+      if (window.confirm("Are you sure you want to delete this form?")) {
+        try {
+          const formRef = doc(firestore, "forms", formId);
+          await deleteDoc(formRef);
+          
+          // Update the local state
+          setClientForms(prev => ({
+            ...prev,
+            [clientId]: prev[clientId].filter(form => form.id !== formId)
+          }));
+          
+          toast({
+            title: "Success",
+            description: "Form deleted successfully",
+          });
+        } catch (error) {
+          console.error('Error deleting form:', error);
+          toast({
+            title: "Error",
+            description: "Failed to delete form. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+    
+    const getStatusBadge = (status) => {
+      const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+          case 'approved':
+            return 'bg-green-50 text-green-700 border-green-200';
+          case 'submitted':
+            return 'bg-blue-50 text-blue-700 border-blue-200';
+          case 'draft':
+            return 'bg-gray-50 text-gray-700 border-gray-200';
+          case 'pending':
+            return 'bg-amber-50 text-amber-700 border-amber-200';
+          default:
+            return 'bg-gray-50 text-gray-700 border-gray-200';
+        }
+      };
+      
+      return (
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(status)}`}>
+          {status?.charAt(0).toUpperCase() + status?.slice(1) || 'Unknown'}
+        </span>
+      );
+    };
+    
+    const formatDate = (dateString) => {
+      if (!dateString) return 'Unknown';
+      const date = new Date(dateString);
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return date.toLocaleDateString(undefined, options);
+    };
+    
+    if (loading) {
+      return (
+        <div className="py-4 text-center">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+          <p className="mt-2 text-sm text-gray-500">Loading forms...</p>
+        </div>
+      );
+    }
+    
+    if (!forms || forms.length === 0) {
+      return (
+        <div className="py-6 text-center border-t">
+          <p className="text-gray-500">No forms found for this client.</p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="mt-2 border-t">
+        <div className="flex justify-between items-center p-4">
+          <h3 className="text-lg font-medium">Forms Submitted by {clientName}</h3>
+          <button 
+            onClick={() => setExpandedClient(null)}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Form Type
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Submitted
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {forms.map((form) => (
+                <tr key={form.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900 capitalize">
+                      {(form.type || "").replace(/-/g, ' ')}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-500">
+                      {formatDate(form.updatedAt)}
+                      <div className="text-xs text-gray-400">
+                        {form.updatedAt ? new Date(form.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(form.status)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex space-x-2 justify-end">
+                      <button
+                        onClick={() => handleViewForm(form.id)}
+                        className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-1 rounded"
+                        title="View Form"
+                      >
+                        <FileText size={18} />
+                      </button>
+                      
+                      <button
+                        onClick={() => handleExportForm(form.id, form.type)}
+                        className="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 p-1 rounded"
+                        title="Export Form"
+                      >
+                        <Download size={18} />
+                      </button>
+                      
+                      {form.status !== 'approved' && (
+                        <button
+                          onClick={() => handleApproveForm(form.id, clientId)}
+                          className="text-amber-600 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 p-1 rounded"
+                          title="Approve Form"
+                        >
+                          <Check size={18} />
+                        </button>
+                      )}
+                      
+                      <button
+                        onClick={() => handleDeleteForm(form.id)}
+                        className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-1 rounded"
+                        title="Delete Form"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   };
   
   const handleDeleteClient = async (clientId: string) => {
@@ -415,7 +764,7 @@ export default function ClientDirectory() {
                 color: '#6b7280'
               }}>
                 <Search size={18} />
-            </div>
+                      </div>
               <input 
                   type="text"
                 style={{ 
@@ -433,8 +782,8 @@ export default function ClientDirectory() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              </div>
-
+                  </div>
+                  
             {/* Add Client Button */}
             <button 
               onClick={handleAddClient}
@@ -457,8 +806,8 @@ export default function ClientDirectory() {
                 Add Client
             </button>
                     </div>
-                  </div>
-                  
+                      </div>
+                      
         {/* Content Area */}
         <div style={{ padding: '1rem' }}>
           {loading ? (
@@ -476,7 +825,7 @@ export default function ClientDirectory() {
                 borderTopColor: 'transparent',
                 animation: 'spin 1s linear infinite'
               }}></div>
-                      </div>
+                        </div>
           ) : filteredClients.length === 0 ? (
             <div style={{
               textAlign: 'center',
@@ -712,6 +1061,16 @@ export default function ClientDirectory() {
                   {expandedQRCodes === client.clientId && (
                     <QRCodeSection client={client} />
                       )}
+
+                  {/* Forms Review Section */}
+                  {expandedClient === client.clientId && (
+                    <FormsReviewTable 
+                      clientId={client.clientId}
+                      clientName={getClientName(client)}
+                      forms={clientForms[client.clientId] || []}
+                      loading={loadingForms[client.clientId]}
+                    />
+                  )}
                     </div>
               ))}
             </div>
