@@ -23,6 +23,7 @@ interface FormTemplateProps {
   onSubmit?: () => void;
   renderSuccessMessage?: () => ReactNode;
   customActions?: ReactNode;
+  hideDefaultActions?: boolean;
 }
 
 export function FormTemplate({
@@ -40,6 +41,7 @@ export function FormTemplate({
   onSubmit,
   renderSuccessMessage,
   customActions,
+  hideDefaultActions = false,
 }: FormTemplateProps) {
   // Default success message if none provided
   const defaultSuccessMessage = () => (
@@ -69,7 +71,7 @@ export function FormTemplate({
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto p-4">
       <Card className="bg-white shadow-md">
         <CardContent className="p-6">
           <div className="text-center mb-6">
@@ -89,38 +91,29 @@ export function FormTemplate({
             {children}
           </div>
 
-          <div className="mt-8 flex justify-between">
-            {customActions || (
-              <>
-                {onPrevious && currentStep > 0 && (
-                  <Button
-                    variant="outline"
-                    onClick={onPrevious}
-                    className="py-2"
-                  >
-                    Previous
-                  </Button>
-                )}
-
-                {currentStep === totalSteps - 1 ? (
-                  <Button
-                    onClick={onSubmit}
-                    disabled={isSubmitting}
-                    className="py-2 bg-blue-600 hover:bg-blue-700"
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit"}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={onNext}
-                    className="py-2 bg-blue-600 hover:bg-blue-700"
-                  >
-                    Next
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
+          {!isSubmitted && (
+            <>
+              {customActions}
+              {!hideDefaultActions && (
+                <div className="flex justify-between mt-6">
+                  {currentStep > 0 && (
+                    <Button onClick={onPrevious} variant="outline">
+                      Previous
+                    </Button>
+                  )}
+                  {currentStep < totalSteps - 1 ? (
+                    <Button onClick={onNext}>
+                      Next
+                    </Button>
+                  ) : (
+                    <Button onClick={onSubmit} disabled={isSubmitting}>
+                      Submit
+                    </Button>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

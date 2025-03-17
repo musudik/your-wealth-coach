@@ -139,6 +139,13 @@
         "hasIncome": "Hat Ihr Ehepartner eigenes Einkommen?",
         "incomeType": "Art des Einkommens",
         "jointTaxation": "Möchten Sie die Zusammenveranlagung wählen?"
+      },
+      "children": {
+        "title": "Informationen zu Kindern",
+        "child": "Kind",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "dateOfBirth": "Geburtsdatum"
       }
     },
     "incomeInfo": {
@@ -148,20 +155,26 @@
       "employmentIncome": "Einkommen aus Anstellung",
       "hasTaxCertificate": "Haben Sie eine Lohnsteuerbescheinigung?",
       "hasTravelSubsidy": "Erhalten Sie einen Fahrtkostenzuschuss?",
+      "businessTitle": "Einkommen aus Selbstständigkeit",
       "isBusinessOwner": "Sind Sie selbständig?",
       "businessType": "Art der Selbständigkeit",
       "businessEarnings": "Einnahmen aus Selbständigkeit",
       "businessExpenses": "Ausgaben für Selbständigkeit",
+      "investmentsTitle": "Kapitalerträge",
       "hasStockIncome": "Haben Sie Einkünfte aus Aktien?",
       "dividendEarnings": "Dividendenerträge",
+      "hasStockSales": "Haben Sie Aktien verkauft?",
+      "stockProfitLoss": "Gewinn oder Verlust aus Aktienverkauf",
       "hasBankCertificate": "Haben Sie eine Bankbescheinigung?",
       "capitalGains": "Kapitalerträge",
       "hasForeignStocks": "Haben Sie ausländische Aktien?",
       "foreignTaxPaid": "Gezahlte ausländische Steuer",
       "hasRentalProperty": "Haben Sie eine vermietete Immobilie?",
+      "rentalTitle": "Vermietung und Verpachtung",
       "rentalIncome": "Vermietung und Verpachtung",
       "rentalCosts": "Mietkosten",
       "rentalPropertyAddress": "Adresse der vermieteten Immobilie",
+      "foreignTitle": "Ausländische Einkünfte",
       "hasForeignIncome": "Haben Sie ausländische Einkünfte?",
       "foreignIncomeCountry": "Land der ausländischen Einkünfte",
       "foreignIncomeType": "Art der ausländischen Einkünfte",
@@ -247,6 +260,13 @@
       "childrenAllowance": "Kinderfreibetrag",
       "homeOfficeDeduction": "Homeoffice-Pauschale",
       "donationsCharity": "Spenden"
+    },
+    "signature": {
+      "title": "Unterschrift",
+      "place": "Ort",
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "signature": "Unterschrift"
     }
   },
   "en": {
@@ -388,6 +408,13 @@
         "hasIncome": "Does your spouse have their own income?",
         "incomeType": "Type of Income",
         "jointTaxation": "Do you want to choose joint taxation?"
+      },
+      "children": {
+        "title": "Children",
+        "child": "Child",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "dateOfBirth": "Date of Birth"
       }
     },
     "incomeInfo": {
@@ -397,20 +424,26 @@
       "employmentIncome": "Employment Income",
       "hasTaxCertificate": "Do you have a tax certificate?",
       "hasTravelSubsidy": "Do you receive a travel subsidy?",
+      "businessTitle": "Self-Employment Income",
       "isBusinessOwner": "Are you self-employed?",
       "businessType": "Type of self-employment",
       "businessEarnings": "Self-employment earnings",
       "businessExpenses": "Self-employment expenses",
+      "investmentsTitle": "Investment Income",
       "hasStockIncome": "Do you have income from stocks?",
       "dividendEarnings": "Dividend earnings",
+      "hasStockSales": "Did you sell stocks?",
+      "stockProfitLoss": "Profit or loss from stock sales",
       "hasBankCertificate": "Do you have a bank certificate?",
       "capitalGains": "Capital gains",
       "hasForeignStocks": "Do you have foreign stocks?",
       "foreignTaxPaid": "Foreign tax paid",
       "hasRentalProperty": "Do you have a rental property?",
+      "rentalTitle": "Rental Income",
       "rentalIncome": "Rental income",
       "rentalCosts": "Rental costs",
       "rentalPropertyAddress": "Rental property address",
+      "foreignTitle": "Foreign Income",
       "hasForeignIncome": "Do you have foreign income?",
       "foreignIncomeCountry": "Foreign income country",
       "foreignIncomeType": "Foreign income type",
@@ -496,6 +529,13 @@
       "childrenAllowance": "Children Allowance",
       "homeOfficeDeduction": "Home Office Deduction",
       "donationsCharity": "Donations"
+    },
+    "signature": {
+      "title": "Signature",
+      "place": "Place",
+      "date": "Date",
+      "time": "Time",
+      "signature": "Signature"
     }
   }
 }

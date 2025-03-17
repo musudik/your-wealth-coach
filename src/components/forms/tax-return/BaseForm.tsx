@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { FormTemplate } from '@/components/ui/form-template';
 import React, { useState, useEffect } from 'react';
 import { saveTaxReturnForm } from '../../../db-services/lib/taxReturnService';
-import { exportTaxReturnToPdf } from '../../../utils/pdfExport';
+import { exportTaxReturnToPdf } from './utils/pdfExport';
 import BusinessStep from './steps/BusinessStep';
 import EmploymentStep from './steps/EmploymentStep';
 import ExpensesStep from './steps/ExpensesStep';
@@ -451,9 +451,63 @@ const TaxReturnForm: React.FC = () => {
   const renderStep = () => {
     const CurrentStep = steps[currentStep].component;
     
+    // Custom actions for the signature step
+    const signatureStepActions = currentStep === steps.length - 1 ? (
+      <div className="flex justify-between items-center mt-6 w-full">
+        <Button
+          onClick={handlePrevious}
+          className="py-2 bg-gray-200 hover:bg-gray-300 text-gray-800"
+          type="button"
+        >
+          {languageData.de.buttons.previous} / {languageData.en.buttons.previous}
+        </Button>
+        <div className="flex space-x-4">
+          <Button
+            onClick={handleExportPdf}
+            className="py-2 bg-green-600 hover:bg-green-700"
+            type="button"
+          >
+            {languageData.de.buttons.exportPdf} / {languageData.en.buttons.exportPdf}
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="py-2 bg-blue-600 hover:bg-blue-700"
+            disabled={isSubmitting}
+            type="submit"
+          >
+            {isSubmitting ? 
+              `${languageData.de.buttons.submitting} / ${languageData.en.buttons.submitting}` : 
+              `${languageData.de.buttons.submit} / ${languageData.en.buttons.submit}`
+            }
+          </Button>
+        </div>
+      </div>
+    ) : null;
+    
     if (CurrentStep === PersonalInfoStep) {
       return (
-        <PersonalInfoStep
+        <>
+          <PersonalInfoStep
+            formData={formData}
+            handleChange={handleChange}
+            validationErrors={validationErrors}
+            hasError={hasError}
+            setFormData={setFormData}
+            onFormDataChange={(updatedData) => setFormData(updatedData)}
+            showValidationErrors={showValidationErrors}
+            handleAddressChange={(address) => {
+              handleChange('personalInfo', 'address', address);
+            }}
+            getInputClass={() => "w-full p-2 border rounded-md"}
+          />
+          {signatureStepActions}
+        </>
+      );
+    }
+    
+    return (
+      <>
+        <CurrentStep
           formData={formData}
           handleChange={handleChange}
           validationErrors={validationErrors}
@@ -464,24 +518,9 @@ const TaxReturnForm: React.FC = () => {
           handleAddressChange={(address) => {
             handleChange('personalInfo', 'address', address);
           }}
-          getInputClass={() => "w-full p-2 border rounded-md"} // Dummy function to satisfy the interface
         />
-      );
-    }
-    
-    return (
-      <CurrentStep
-        formData={formData}
-        handleChange={handleChange}
-        validationErrors={validationErrors}
-        hasError={hasError}
-        setFormData={setFormData}
-        onFormDataChange={(updatedData) => setFormData(updatedData)}
-        showValidationErrors={showValidationErrors}
-        handleAddressChange={(address) => {
-          handleChange('personalInfo', 'address', address);
-        }}
-      />
+        {signatureStepActions}
+      </>
     );
   };
 
@@ -527,6 +566,7 @@ const TaxReturnForm: React.FC = () => {
           </div>
         </div>
       )}
+      hideDefaultActions={currentStep === steps.length - 1}
     >
       {renderStep()}
     </FormTemplate>

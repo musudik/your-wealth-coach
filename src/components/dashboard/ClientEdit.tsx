@@ -158,7 +158,7 @@ export default function ClientEdit() {
       console.error("Error fetching client:", error);
     } finally {
       if (isMounted.current) {
-        setLoading(false);
+      setLoading(false);
       }
     }
   };
@@ -308,7 +308,7 @@ export default function ClientEdit() {
       }
     } finally {
       if (isMounted.current) {
-        setSaving(false);
+      setSaving(false);
       }
     }
   };
@@ -332,7 +332,7 @@ export default function ClientEdit() {
     return `form-input ${hasError(`spouse_${fieldName}`) ? 'form-input-error' : ''}`;
   };
 
-  return (
+    return (
     <div className="form-container">
       <div className="form-header">
         <button 
@@ -368,7 +368,7 @@ export default function ClientEdit() {
               {hasError('firstName') && (
                 <p className="form-error-message">First name is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -385,7 +385,7 @@ export default function ClientEdit() {
               {hasError('lastName') && (
                 <p className="form-error-message">Last name is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -398,8 +398,8 @@ export default function ClientEdit() {
                 value={clientDetails.birthName}
                 onChange={handleInputChange}
                 className={getInputClass('birthName')}
-              />
-            </div>
+            />
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -416,7 +416,7 @@ export default function ClientEdit() {
               {hasError('address') && (
                 <p className="form-error-message">Address is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -433,7 +433,7 @@ export default function ClientEdit() {
               {hasError('telephone') && (
                 <p className="form-error-message">Valid telephone number is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -441,7 +441,7 @@ export default function ClientEdit() {
                 <span className="form-label-subtext">E-Mail ID</span>
               </label>
               <input
-                type="email"
+              type="email"
                 name="email"
                 value={clientDetails.email}
                 onChange={handleInputChange}
@@ -450,7 +450,7 @@ export default function ClientEdit() {
               {hasError('email') && (
                 <p className="form-error-message">Valid email address is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -458,7 +458,7 @@ export default function ClientEdit() {
                 <span className="form-label-subtext">Date of birth</span>
               </label>
               <input
-                type="date"
+              type="date"
                 name="dateOfBirth"
                 value={clientDetails.dateOfBirth}
                 onChange={handleInputChange}
@@ -467,7 +467,7 @@ export default function ClientEdit() {
               {hasError('dateOfBirth') && (
                 <p className="form-error-message">Valid date of birth is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -484,7 +484,7 @@ export default function ClientEdit() {
               {hasError('placeOfBirth') && (
                 <p className="form-error-message">Place of birth is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -507,7 +507,7 @@ export default function ClientEdit() {
               {hasError('nationality') && (
                 <p className="form-error-message">Nationality is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -530,7 +530,7 @@ export default function ClientEdit() {
               {hasError('maritalStatus') && (
                 <p className="form-error-message">Marital status is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -547,7 +547,7 @@ export default function ClientEdit() {
               {hasError('occupation') && (
                 <p className="form-error-message">Occupation is required</p>
               )}
-            </div>
+          </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -555,7 +555,7 @@ export default function ClientEdit() {
                 <span className="form-label-subtext">Occupation since</span>
               </label>
               <input
-                type="date"
+              type="date"
                 name="occupationSince"
                 value={clientDetails.occupationSince}
                 onChange={handleInputChange}
@@ -622,8 +622,8 @@ export default function ClientEdit() {
               {hasError('email') && (
                 <p className="form-error-message">Valid email address is required</p>
               )}
-            </div>
-          </div>
+        </div>
+      </div>
         </FormSection>
 
         <FormSection 
@@ -686,7 +686,7 @@ export default function ClientEdit() {
               {hasError('nationality') && (
                 <p className="form-error-message">Nationality is required</p>
               )}
-            </div>
+      </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -709,7 +709,7 @@ export default function ClientEdit() {
               {hasError('maritalStatus') && (
                 <p className="form-error-message">Marital status is required</p>
               )}
-            </div>
+              </div>
 
             <div className="form-field">
               <label className="form-label">
@@ -784,7 +784,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Spouse first name is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Nachname</span>
@@ -801,7 +801,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Spouse last name is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Geburtsname (falls vorhanden)</span>
@@ -815,7 +815,7 @@ export default function ClientEdit() {
                   className="form-input"
                 />
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Adresse</span>
@@ -832,7 +832,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Spouse address is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Telefonnummer</span>
@@ -849,7 +849,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Valid spouse telephone number is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">E-Mail-Adresse</span>
@@ -866,7 +866,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Valid spouse email is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Geburtsdatum</span>
@@ -883,7 +883,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Valid spouse date of birth is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Geburtsort</span>
@@ -900,7 +900,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Spouse place of birth is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Staatsangehörigkeit</span>
@@ -923,7 +923,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Spouse nationality is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Familienstand</span>
@@ -946,7 +946,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Spouse marital status is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Beruf</span>
@@ -963,7 +963,7 @@ export default function ClientEdit() {
                   <p className="form-error-message">Spouse occupation is required</p>
                 )}
               </div>
-              
+
               <div className="form-field">
                 <label className="form-label">
                   <span className="form-label-text">Beruf seit</span>
@@ -981,7 +981,7 @@ export default function ClientEdit() {
                 )}
               </div>
             </div>
-          </div>
+            </div>
         )}
 
         <div className="form-actions">
@@ -989,25 +989,25 @@ export default function ClientEdit() {
             type="button"
             onClick={() => history.goBack()}
             className="btn btn-cancel"
-          >
-            Cancel
+              >
+                Cancel
           </button>
           <button
             type="button"
-            onClick={handleSave}
-            disabled={saving}
+                onClick={handleSave}
+                disabled={saving}
             className="btn btn-primary"
-          >
-            {saving ? (
+              >
+                {saving ? (
               <>Saving...</>
-            ) : (
-              <>
+                ) : (
+                  <>
                 <Save size={16} style={{ marginRight: '0.5rem' }} />
-                Save Client
-              </>
-            )}
+                    Save Client
+                  </>
+                )}
           </button>
-        </div>
+            </div>
       </form>
     </div>
   );
